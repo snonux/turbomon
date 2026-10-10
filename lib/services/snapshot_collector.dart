@@ -17,10 +17,14 @@ class SnapshotCollector {
   }) async {
     final hub = services.hub;
     final now = DateTime.now();
+    final access = services.access;
     final input = SnapshotInput(
       generatedAt: now,
       device: await services.platform.device(),
-      accessLevel: services.access.level.label,
+      // An unanswered shell explains missing CPU and process data.
+      accessLevel: access.shellError == null
+          ? access.level.label
+          : '${access.level.label}, not answering: ${access.shellError}',
       series: hub.series,
       coreSeries: hub.coreSeries,
       latest: hub.latest,

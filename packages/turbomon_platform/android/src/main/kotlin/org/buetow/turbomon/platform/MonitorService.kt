@@ -8,7 +8,9 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.ServiceInfo
 import android.os.Build
+import android.os.Handler
 import android.os.IBinder
+import android.os.Looper
 import io.flutter.FlutterInjector
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.embedding.engine.dart.DartExecutor
@@ -23,6 +25,7 @@ class MonitorService : Service() {
     private var engine: FlutterEngine? = null
     private var overlay: OverlayController? = null
     private var statusText = "Starting…"
+    private val handler = Handler(Looper.getMainLooper())
 
     override fun onBind(intent: Intent?): IBinder? = null
 
@@ -35,7 +38,7 @@ class MonitorService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (intent?.action == ACTION_STOP) {
-            stopSelf()
+            requestStop()
             return START_NOT_STICKY
         }
         intent?.getStringExtra(EXTRA_CONFIG)?.let { saveConfig(this, it) }
@@ -47,11 +50,26 @@ class MonitorService : Service() {
     }
 
     override fun onDestroy() {
+        handler.removeCallbacksAndMessages(null)
         instance = null
         overlay?.hide()
         engine?.destroy()
         engine = null
         super.onDestroy()
+    }
+
+    /**
+     * Lets the Dart runner finish the run (its snapshot and summary) and stop
+     * the service itself; stops anyway if it has not after [STOP_GRACE_MS].
+     */
+    fun requestStop() {
+        val plugin = engine?.plugins?.get(TurboMonPlatformPlugin::class.java) as? TurboMonPlatformPlugin
+        if (plugin == null) {
+            stopSelf()
+            return
+        }
+        plugin.requestStop()
+        handler.postDelayed({ stopSelf() }, STOP_GRACE_MS)
     }
 
     fun updateStatus(text: String) {
@@ -110,6 +128,7 @@ class MonitorService : Service() {
         private const val BACKGROUND_ENTRYPOINT = "backgroundMain"
         private const val PREFS = "turbomon_service"
         private const val KEY_CONFIG = "config"
+        private const val STOP_GRACE_MS = 20_000L
 
         /** The running service, if any; only touched on the main thread. */
         var instance: MonitorService? = null
@@ -125,6 +144,11 @@ class MonitorService : Service() {
             } else {
                 context.startService(intent)
             }
+        }
+
+        /** Graceful stop, as from the notification's Stop button. */
+        fun requestStop() {
+            instance?.requestStop()
         }
 
         fun stop(context: Context) {

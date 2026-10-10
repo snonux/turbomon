@@ -67,7 +67,7 @@ class _BackgroundScreenState extends State<BackgroundScreen> {
   }
 
   Future<void> _stop() async {
-    await _s.platform.stopService();
+    await _s.platform.requestStop();
     await _refresh();
   }
 

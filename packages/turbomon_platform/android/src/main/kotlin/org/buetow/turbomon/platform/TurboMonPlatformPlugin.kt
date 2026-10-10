@@ -69,6 +69,11 @@ class TurboMonPlatformPlugin :
         }
     }
 
+    /** Asks this engine's Dart side (the background runner) to finish and stop. */
+    fun requestStop() {
+        channel.invokeMethod("stopRequested", null)
+    }
+
     override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
         channel.setMethodCallHandler(null)
         wifiEvents.setStreamHandler(null)
@@ -131,6 +136,7 @@ class TurboMonPlatformPlugin :
             // Background service, widget, overlay, alerts
             "startService" -> guarded(result) { MonitorService.start(context, call.requireString("config")) }
             "stopService" -> guarded(result) { MonitorService.stop(context) }
+            "requestStop" -> guarded(result) { MonitorService.requestStop() }
             "serviceRunning" -> result.success(MonitorService.isRunning)
             "serviceConfig" -> result.success(MonitorService.savedConfig(context))
             "serviceStatus" -> guarded(result) { MonitorService.instance?.updateStatus(call.requireString("text")) }

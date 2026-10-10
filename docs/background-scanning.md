@@ -33,7 +33,8 @@ screen warns about both.
 - **Never**: until you stop it.
 
 With *Snapshot when it stops* on (the default) a run that ends saves a
-snapshot of itself, listed under Snapshot, *Saved*.
+snapshot of itself, listed under Snapshot, *Saved*. That includes runs you
+stop yourself, from the notification, the quick-settings tile or the app.
 
 ## Presets
 

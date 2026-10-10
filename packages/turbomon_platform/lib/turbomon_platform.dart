@@ -83,6 +83,19 @@ class TurboMonPlatform {
   Future<void> startService(String config) =>
       _channel.invokeMethod<void>('startService', {'config': config});
   Future<void> stopService() => _channel.invokeMethod<void>('stopService');
+
+  /// Asks a running background scan to finish, which saves its snapshot when
+  /// configured, and then stop.
+  Future<void> requestStop() => _channel.invokeMethod<void>('requestStop');
+
+  /// Background engine only: runs [onStop] when the scan is stopped from the
+  /// notification or the app.
+  void onStopRequested(Future<void> Function() onStop) {
+    _channel.setMethodCallHandler((call) async {
+      if (call.method == 'stopRequested') await onStop();
+    });
+  }
+
   Future<bool> serviceRunning() => _bool('serviceRunning');
 
   /// The configuration the service was last started with, as JSON.

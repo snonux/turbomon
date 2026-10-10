@@ -35,6 +35,7 @@ Future<void> backgroundMain() async {
     (jsonDecode(raw) as Map).cast<String, Object?>(),
   );
   final runner = await createBackgroundRunner(platform, config);
+  platform.onStopRequested(() => runner.stop('Stopped by you.'));
   await runner.start();
 }
 

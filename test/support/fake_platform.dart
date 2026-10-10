@@ -126,6 +126,12 @@ class FakePlatform extends TurboMonPlatform {
 
   @override
   Future<void> stopService() async => running = false;
+
+  @override
+  Future<void> requestStop() async => running = false;
+
+  @override
+  void onStopRequested(Future<void> Function() onStop) {}
   @override
   Future<bool> serviceRunning() async => running;
   @override

@@ -19,7 +19,7 @@ class MonitorTileService : TileService() {
     override fun onClick() {
         super.onClick()
         if (MonitorService.isRunning) {
-            MonitorService.stop(this)
+            MonitorService.requestStop()
         } else if (MonitorService.savedConfig(this) == null || !tryStart()) {
             // Nothing configured yet, or Android refused a background start:
             // open the app, where background scanning is set up.
