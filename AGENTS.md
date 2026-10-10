@@ -19,5 +19,5 @@ the [docs](./docs/).
   `dependenciesInfo` or `applicationVariants` blocks in
   `android/app/build.gradle.kts`.
 - Never create, print or commit signing keys.
-- Before a release, go through [docs/testing.md](./docs/testing.md).
+- Before a release, go through [docs/testing.md](./docs/testing.md); [docs/phone-testing-handoff.md](./docs/phone-testing-handoff.md) lists what is still untested on a real phone.
 - Keep README.md short; detail goes in `docs/`.
