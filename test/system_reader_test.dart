@@ -116,6 +116,8 @@ void main() {
 
       final processes = await r.processes(limit: 5);
       expect(processes, hasLength(5));
+      // TurboMon's own `top` probe is not one of the busiest processes.
+      expect(processes.first.name, startsWith('sh -c settings'));
       final mah = await r.batteryByUid();
       expect(mah[1000], 41.7);
     },

@@ -89,12 +89,14 @@ class SystemReader {
   /// Android hides other apps' /proc entries from normal apps.
   Future<List<ProcessInfo>> processes({int limit = 40}) async {
     if (access.runner == null) return const [];
+    const top = 'top -b -n 1 -q -o PID,USER,S,%CPU,RES,ARGS -s 4';
     try {
-      final out = await access.run(
-        'top -b -n 1 -q -o PID,USER,S,%CPU,RES,ARGS -s 4 -m $limit',
-      );
+      // One extra row, since the probe itself is dropped below.
+      final out = await access.run('$top -m ${limit + 1}');
       // toybox top ignores -m with -q on some builds; cap the list here.
-      return parseTop(out).take(limit).toList();
+      return parseTop(
+        out,
+      ).where((p) => !p.name.startsWith(top)).take(limit).toList();
     } on Object {
       return const [];
     }

@@ -203,8 +203,9 @@ class _SavedSnapshotsScreenState extends State<SavedSnapshotsScreen> {
             return const Padding(
               padding: EdgeInsets.all(16),
               child: Text(
-                'None yet. Background scans save one when they stop, '
-                'if "Snapshot when it stops" is on.',
+                'None yet. Background scans save one when they stop, if '
+                '"Snapshot when it stops" is on, and so do alerts with '
+                'Snapshot ticked.',
               ),
             );
           }

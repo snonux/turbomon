@@ -77,6 +77,9 @@ class MonitorHub extends ChangeNotifier with WidgetsBindingObserver {
   List<StorageVolume> volumes = const [];
   final List<FiredAlert> firedAlerts = [];
 
+  /// Saves a snapshot for alerts that ask for one; set by AppServices.
+  Future<void> Function()? onAutoSnapshot;
+
   bool get running => _timer != null;
 
   void start() {
@@ -243,6 +246,13 @@ class MonitorHub extends ChangeNotifier with WidgetsBindingObserver {
     if (await platform.serviceRunning()) return;
     for (final a in fired) {
       await platform.notify(a.rule.metric.index, a.title, a.text);
+    }
+    if (fired.any((a) => a.rule.autoSnapshot)) {
+      try {
+        await onAutoSnapshot?.call();
+      } on Object {
+        // A failed snapshot must not stop sampling; the alert still showed.
+      }
     }
   }
 }

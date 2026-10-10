@@ -6,6 +6,7 @@ import 'services/history_store.dart';
 import 'services/monitor_hub.dart';
 import 'services/permissions.dart';
 import 'services/settings_store.dart';
+import 'services/snapshot_collector.dart';
 import 'services/storage_paths.dart';
 import 'services/system_reader.dart';
 import 'services/wifi_controller.dart';
@@ -31,7 +32,7 @@ class AppServices {
     await access.resolve(settings.value.accessMode, interactive: false);
     final permissions = Permissions(platform);
     final reader = SystemReader(platform: platform, access: access);
-    return AppServices(
+    final services = AppServices(
       platform: platform,
       settings: settings,
       access: access,
@@ -48,6 +49,8 @@ class AppServices {
       permissions: permissions,
       paths: await StoragePaths.resolve(),
     );
+    services.hub.onAutoSnapshot = () => SnapshotCollector(services).save();
+    return services;
   }
 
   final TurboMonPlatform platform;

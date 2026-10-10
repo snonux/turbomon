@@ -57,7 +57,15 @@ class SnapshotCollector {
     return file.writeAsString(report);
   }
 
-  /// Snapshots the background service saved, newest first.
+  /// Builds a snapshot and keeps it with the saved ones, as an alert does.
+  Future<File> save() async {
+    final dir = services.paths.savedSnapshots;
+    await dir.create(recursive: true);
+    final file = File(p.join(dir.path, snapshotFileName(DateTime.now())));
+    return file.writeAsString(await build());
+  }
+
+  /// Snapshots saved by background runs and alerts, newest first.
   Future<List<File>> saved() async {
     final dir = services.paths.savedSnapshots;
     if (!await dir.exists()) return const [];

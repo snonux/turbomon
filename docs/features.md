@@ -97,8 +97,9 @@ whether background history goes in.
 Settings, *Threshold alerts*: CPU load, temperature, battery drain and RAM,
 each with a threshold, how long it must be held, and whether to save a
 snapshot when it fires. All are off by default. An alert fires once per
-excursion and re-arms when the value drops back. Alerts are checked by the
-background service, so they work with the app closed.
+excursion and re-arms when the value drops back. Alerts are checked while
+TurboMon is open and by the background service, so they also work with the
+app closed. Their snapshots are listed under Snapshot, *Saved*.
 
 ## Widget, overlay and quick-settings tile
 
