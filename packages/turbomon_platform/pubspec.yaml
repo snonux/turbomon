@@ -1,0 +1,15 @@
+name: turbomon_platform
+description: Android system, radio and service access for TurboMon.
+version: 0.1.0
+publish_to: none
+environment:
+  sdk: ^3.11.5
+dependencies:
+  flutter:
+    sdk: flutter
+flutter:
+  plugin:
+    platforms:
+      android:
+        package: org.buetow.turbomon.platform
+        pluginClass: TurboMonPlatformPlugin

@@ -1,0 +1,6 @@
+First release.
+
+* Top-style CPU, RAM and GPU view, live graphs, battery, temperatures, storage, disk I/O and network.
+* Wi-Fi channel analyser and Bluetooth scanner.
+* LLM-ready snapshot reports, alerts, background scanning with auto-stop, widget, overlay and quick-settings tile.
+* Optional Shizuku or root for real CPU usage and the process list.

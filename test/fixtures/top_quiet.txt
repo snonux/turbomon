@@ -1,0 +1,17 @@
+ 2355 shell        R 54.3 5.1M top -b -n 1 -q -o PID,USER,S,%CPU,RES,ARGS -s 4 -m 12
+ 2369 shell        R 44.5 1.5M sh -c settings put system screen_off_timeout 2147483647
+ 1536 system       D 43.8 338M system_server
+  463 root         S 43.4 6.9M installd
+    1 root         R 32.9  12M init second_stage
+ 1740 u0_a167      R 11.9 163M com.android.systemui
+  379 system       S 11.9 7.1M android.hardware.sensors-service.multihal
+  731 root         I  7.1    0 [kworker/u8:3-phy1]
+ 1855 network_stack S 5.6 104M com.android.networkstack.process
+  153 logd         S  4.4 7.3M logd
+ 2251 u0_a130      R  3.3  85M com.google.android.gms.persistent
+ 2096 radio        R  3.3 109M com.android.phone
+ 2188 root         I  2.9    0 [kworker/1:1-mm_percpu_wq]
+ 2293 u0_a175      S  2.6  72M <pre-initialized>
+ 1480 root         S  2.2  11M netd
+  447 logd         S  2.2 4.0M logcat -f /dev/hvc1 *:V
+  441 shell        S  2.2 9.1M adbd --root_seclabel=u:r:su:s0

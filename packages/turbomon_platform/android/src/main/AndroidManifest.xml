@@ -1,0 +1,57 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- The permissions these components need are declared, with reasons, in
+         the app's own manifest (android/app/src/main/AndroidManifest.xml). -->
+    <application>
+        <!-- Background scanning; hosts a headless Flutter engine. -->
+        <service
+            android:name="org.buetow.turbomon.platform.MonitorService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="@string/turbomon_fgs_reason" />
+        </service>
+
+        <service
+            android:name="org.buetow.turbomon.platform.MonitorTileService"
+            android:exported="true"
+            android:icon="@drawable/turbomon_notification"
+            android:label="@string/turbomon_tile_label"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
+
+        <receiver
+            android:name="org.buetow.turbomon.platform.TurboMonWidget"
+            android:exported="false"
+            android:label="TurboMon">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/turbomon_widget_info" />
+        </receiver>
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.snapshots"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/turbomon_file_paths" />
+        </provider>
+
+        <!-- Shizuku hands its binder to the app through this provider. -->
+        <provider
+            android:name="rikka.shizuku.ShizukuProvider"
+            android:authorities="${applicationId}.shizuku"
+            android:enabled="true"
+            android:exported="true"
+            android:multiprocess="false"
+            android:permission="android.permission.INTERACT_ACROSS_USERS_FULL" />
+    </application>
+</manifest>
