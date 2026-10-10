@@ -18,6 +18,11 @@ every thermal sensor.
   <img src="docs/screenshots/wifi-channels.png" width="180" alt="Wi-Fi channel graph">
   <img src="docs/screenshots/snapshot.png" width="180" alt="Snapshot sheet">
 </p>
+<p>
+  <img src="docs/screenshots/io.png" width="180" alt="I/O tab">
+  <img src="docs/screenshots/background.png" width="180" alt="Background scanning settings">
+  <img src="docs/screenshots/widget-overlay.png" width="180" alt="Home-screen widget and floating overlay">
+</p>
 
 ## Install
 

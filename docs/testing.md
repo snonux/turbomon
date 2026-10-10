@@ -20,8 +20,9 @@ go through this list.
       watts, temperature, thermal status.
 - [ ] I/O: network speed moves during a download; storage volumes; *Per app*
       asks for usage access, then lists apps.
-- [ ] Wi-Fi asks for its permission, then lists networks; channel graph,
-      bars, waterfall and pinned-signal graph fill in for each band.
+- [ ] Wi-Fi asks for location (and Nearby Wi-Fi devices on 13+), then lists
+      networks; channel graph, bars, waterfall and pinned-signal graph fill in
+      for each band.
 - [ ] Bluetooth asks for its permission, then lists nearby devices with
       maker; *Classic* discovery; paired list.
 - [ ] Snapshot: share, save, preview, saved list; BSSIDs and addresses only
@@ -52,3 +53,12 @@ go through this list.
       over the previous version.
 - [ ] `aapt dump permissions` shows no `INTERNET`.
 - [ ] Launcher, adaptive and themed (monochrome) icons look right.
+
+## Last run: v0.1.0 on an emulator
+
+Android 14 (API 34) x86_64 emulator with Shizuku, release build. Everything
+above passed except what the emulator cannot do, which unit tests cover
+instead: its Bluetooth stack crashes, so only the *Bluetooth is off* state
+was checked; its battery is a fixed fake that never discharges, so drain
+alerts and the battery-level auto-stop did not run; and it has one access
+point. Auto-stop at a time of day was not waited for. Check these on a phone.
