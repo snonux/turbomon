@@ -1,0 +1,5 @@
+    UID u0a167: 52.1 fg: 30.2 bg: 21.9 ( cpu=40.1 wifi=5.0 screen=7.0 )
+    UID 1000: 41.7 ( cpu=35.2 wakelock=6.5 )
+    UID u0a130: 12.03 ( cpu=10.0 mobile_radio=2.03 )
+    UID u10a12: 3.5 ( cpu=3.5 )
+    UID root: 9.0 ( cpu=9.0 )

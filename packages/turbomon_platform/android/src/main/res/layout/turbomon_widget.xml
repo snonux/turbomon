@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/turbomon_widget_background"
+    android:orientation="vertical"
+    android:padding="10dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/turbomon_widget_title"
+            android:textColor="#FFFF7A1A"
+            android:textSize="13sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/widget_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#B3FFFFFF"
+            android:textSize="11sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView style="@style/TurboMonWidgetLabel" android:text="@string/turbomon_widget_cpu" />
+        <TextView android:id="@+id/widget_cpu" style="@style/TurboMonWidgetValue" />
+        <TextView style="@style/TurboMonWidgetLabel" android:text="@string/turbomon_widget_ram" />
+        <TextView android:id="@+id/widget_ram" style="@style/TurboMonWidgetValue" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView style="@style/TurboMonWidgetLabel" android:text="@string/turbomon_widget_battery" />
+        <TextView android:id="@+id/widget_battery" style="@style/TurboMonWidgetValue" />
+        <TextView style="@style/TurboMonWidgetLabel" android:text="@string/turbomon_widget_temp" />
+        <TextView android:id="@+id/widget_temp" style="@style/TurboMonWidgetValue" />
+    </LinearLayout>
+</LinearLayout>

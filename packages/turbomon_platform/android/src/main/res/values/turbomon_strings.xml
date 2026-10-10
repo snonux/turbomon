@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="turbomon_widget_title">TurboMon</string>
+    <string name="turbomon_widget_description">CPU, RAM, battery and temperature at a glance.</string>
+    <string name="turbomon_widget_cpu">CPU</string>
+    <string name="turbomon_widget_ram">RAM</string>
+    <string name="turbomon_widget_battery">BAT</string>
+    <string name="turbomon_widget_temp">TEMP</string>
+    <string name="turbomon_tile_label">TurboMon scan</string>
+    <string name="turbomon_fgs_reason">Samples the monitors the user picked for background scanning, until the configured auto-stop.</string>
+</resources>

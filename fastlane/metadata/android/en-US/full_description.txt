@@ -1,0 +1,18 @@
+TurboMon shows what your phone is doing right now, and helps you find out why the battery drains or the phone runs hot.
+
+<b>Features</b>
+<ul>
+<li>A top-style view of CPU (total and per core), RAM and GPU, with a process list when Shizuku or root is available.</li>
+<li>Live graphs that change colour with load: CPU, RAM, GPU, battery level and power, network speed, temperatures, disk I/O.</li>
+<li>Battery: current, power, voltage, temperature, health and average drain.</li>
+<li>Temperatures, storage per volume and per app, disk I/O, data use per app.</li>
+<li>Wi-Fi analyser: every network with signal strength, channel graphs for 2.4, 5 and 6 GHz, a waterfall, signal history and a suggested channel.</li>
+<li>Bluetooth scanner: nearby LE and classic devices with signal, maker and signal history, plus paired devices.</li>
+<li>Snapshots: one Markdown report with findings and all the data as JSON, written to be pasted into an LLM to find the cause of a drain.</li>
+<li>Optional background scanning: choose what to sample and how often, and when it stops (after a time, at a time of day, or at a battery level).</li>
+<li>Alerts with automatic snapshots, a home-screen widget, a floating overlay and a quick-settings tile.</li>
+</ul>
+
+TurboMon works as a normal app. Shizuku or root are optional and unlock real CPU usage, all processes, GPU load, every thermal sensor and per-app battery use.
+
+TurboMon has no internet permission. Wi-Fi and Bluetooth addresses are left out of snapshots unless you include them.

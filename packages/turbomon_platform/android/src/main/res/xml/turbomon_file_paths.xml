@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Snapshots are written to cache/snapshots/ before they are shared. -->
+<paths>
+    <cache-path name="snapshots" path="snapshots/" />
+</paths>

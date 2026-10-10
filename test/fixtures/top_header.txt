@@ -1,0 +1,11 @@
+Tasks: 279 total,  10 running, 269 sleeping,   0 stopped,   0 zombie
+  Mem:  4016092K total,  3848228K used,   167864K free,    61932K buffers
+ Swap:  3012064K total,     2304K used,  3009760K free,  3115884K cached
+400%cpu  36%user   6%nice  71%sys 270%idle   0%iow  12%irq   5%sirq   0%host
+  PID USER         S[%CPU] RES ARGS
+ 2376 shell        R 40.5 4.9M top -b -n 1 -o PID,USER,S,%CPU,RES,ARGS -s 4 -m 6
+ 1536 system       R 39.2 340M system_server
+  463 root         S 38.2 6.9M installd
+ 2219 u0_a145      S 27.6 140M com.google.android.inputmethod.latin
+ 1740 u0_a167      R 18.3 162M com.android.systemui
+ 2293 u0_a175      R 17.6  81M com.google.android.ext.services
