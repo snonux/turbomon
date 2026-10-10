@@ -17,10 +17,11 @@ class Permissions {
   Future<int> sdk() async =>
       _sdk ??= (await platform.device())['sdk'] as int? ?? 0;
 
-  /// Android 13+ scans with NEARBY_WIFI_DEVICES (neverForLocation); older
-  /// versions need fine location (with location turned on).
-  Future<List<String>> wifi() async =>
-      await sdk() >= 33 ? const [nearbyWifi] : const [fineLocation];
+  /// Wi-Fi scan results still need fine location (and location turned on)
+  /// on every Android version; 13+ also asks for NEARBY_WIFI_DEVICES.
+  Future<List<String>> wifi() async => await sdk() >= 33
+      ? const [nearbyWifi, fineLocation]
+      : const [fineLocation];
 
   Future<List<String>> bluetooth() async => await sdk() >= 31
       ? const [bluetoothScan, bluetoothConnect]

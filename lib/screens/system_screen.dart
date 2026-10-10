@@ -199,7 +199,7 @@ class _SystemScreenState extends State<SystemScreen> {
   String _shellWaiting() {
     final access = widget.services.access;
     final error = access.shellError;
-    return 'Waiting for the ${access.level.label} shell'
+    return 'Waiting for ${access.level.label} to answer'
         '${error == null ? '' : ' ($error)'}. TurboMon keeps trying.';
   }
 

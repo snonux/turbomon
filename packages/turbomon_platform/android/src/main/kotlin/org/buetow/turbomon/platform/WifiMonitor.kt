@@ -12,6 +12,8 @@ import android.net.wifi.ScanResult
 import android.net.wifi.WifiInfo
 import android.net.wifi.WifiManager
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import android.os.SystemClock
 import androidx.core.content.ContextCompat
 import io.flutter.plugin.common.EventChannel
@@ -26,6 +28,8 @@ import io.flutter.plugin.common.EventChannel
 class WifiMonitor(private val context: Context) : EventChannel.StreamHandler {
     private val wifi = context.applicationContext.getSystemService(WifiManager::class.java)
     private val connectivity = context.getSystemService(ConnectivityManager::class.java)
+    // Flutter's EventSink must be called on the main thread.
+    private val main = Handler(Looper.getMainLooper())
     private var sink: EventChannel.EventSink? = null
     private var receiver: BroadcastReceiver? = null
     private var callback: ConnectivityManager.NetworkCallback? = null
@@ -88,6 +92,7 @@ class WifiMonitor(private val context: Context) : EventChannel.StreamHandler {
      * Link changes (including RSSI) arrive through a network callback, which is
      * not throttled. From API 31 the WifiInfo comes with the capabilities, and
      * FLAG_INCLUDE_LOCATION_INFO keeps its SSID when location is granted.
+     * Its callbacks run on ConnectivityThread, so they emit through [emit].
      */
     private fun watchConnection() {
         val request = NetworkRequest.Builder().addTransportType(NetworkCapabilities.TRANSPORT_WIFI).build()
@@ -95,22 +100,26 @@ class WifiMonitor(private val context: Context) : EventChannel.StreamHandler {
             object : ConnectivityManager.NetworkCallback(FLAG_INCLUDE_LOCATION_INFO) {
                 override fun onCapabilitiesChanged(network: Network, caps: NetworkCapabilities) {
                     lastInfo = caps.transportInfo as? WifiInfo
-                    sink?.success(mapOf("type" to "link"))
+                    emit(mapOf("type" to "link"))
                 }
 
                 override fun onLost(network: Network) {
                     lastInfo = null
-                    sink?.success(mapOf("type" to "link"))
+                    emit(mapOf("type" to "link"))
                 }
             }
         } else {
             object : ConnectivityManager.NetworkCallback() {
                 override fun onCapabilitiesChanged(network: Network, caps: NetworkCapabilities) {
-                    sink?.success(mapOf("type" to "link"))
+                    emit(mapOf("type" to "link"))
                 }
             }
         }
         runCatching { connectivity.registerNetworkCallback(request, cb) }.onSuccess { callback = cb }
+    }
+
+    private fun emit(event: Map<String, Any?>) {
+        main.post { sink?.success(event) }
     }
 
     private fun toMap(r: ScanResult): Map<String, Any?> {

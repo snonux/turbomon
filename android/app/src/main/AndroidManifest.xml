@@ -5,8 +5,8 @@
          Runtime permissions are requested only when their feature is first
          used; docs/permissions.md explains each one. -->
 
-    <!-- Wi-Fi analysis. Android 13+ uses NEARBY_WIFI_DEVICES without location;
-         older versions need location to see scan results. -->
+    <!-- Wi-Fi analysis. Android still only returns scan results to apps with
+         fine location, on every version; TurboMon never reads the location. -->
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -15,11 +15,9 @@
         android:usesPermissionFlags="neverForLocation"
         tools:targetApi="33" />
     <uses-permission
-        android:name="android.permission.ACCESS_FINE_LOCATION"
-        android:maxSdkVersion="32" />
+        android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission
-        android:name="android.permission.ACCESS_COARSE_LOCATION"
-        android:maxSdkVersion="32" />
+        android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
     <!-- Bluetooth scanning; the legacy pair covers Android 11 and older. -->
     <uses-permission

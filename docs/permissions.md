@@ -6,8 +6,8 @@ the first time you use the feature that needs them, never at install.
 
 | Permission | Feature | Notes |
 |---|---|---|
-| Nearby Wi-Fi devices (Android 13+) | Wi-Fi tab | Declared `neverForLocation`. |
-| Location (Android 12 and older) | Wi-Fi tab | Older Android only returns scan results to apps with location. TurboMon never reads your location. |
+| Location (precise) | Wi-Fi tab | Android only returns Wi-Fi scan results to apps with precise location, and location must be turned on. TurboMon never reads your location. |
+| Nearby Wi-Fi devices (Android 13+) | Wi-Fi tab | Asked together with location; declared `neverForLocation`. |
 | Wi-Fi state, change Wi-Fi state, network state | Wi-Fi tab, network speed | Reading scan results, starting scans, following the connected network. |
 | Nearby devices: Bluetooth scan and connect (Android 12+) | Bluetooth tab | Scan is declared `neverForLocation`; connect is needed for names and the paired list. Android 11 and older use the legacy Bluetooth permissions. |
 | Usage access | Per-app data use and storage | Granted in Android's Settings; TurboMon opens the page. |

@@ -48,8 +48,9 @@ class _WifiScreenState extends State<WifiScreen> {
       builder: (context, _) {
         final blocked = switch (_wifi.state) {
           WifiState.needsPermission => _blocked(
-            'Scanning needs the "Nearby devices" permission '
-            '(location on Android 12 and older).',
+            'Scanning needs the location permission, with location '
+            'turned on. Android only shares scan results with it; '
+            'TurboMon never reads where you are.',
           ),
           WifiState.disabled => _blocked('Wi-Fi is off. Turn it on to scan.'),
           _ => null,
