@@ -40,6 +40,7 @@ F-Droid and install TurboMon from there; F-Droid keeps it updated.
 - [Background scanning](./docs/background-scanning.md): what runs, how often, and how it stops.
 - [Snapshot format](./docs/snapshot-schema.md): the report an LLM reads.
 - [Building](./docs/building.md), [testing](./docs/testing.md) and [releasing](./docs/releasing.md).
+- [Phone testing handoff](./docs/phone-testing-handoff.md): what is left to test on a real phone, for the next agent.
 
 ## License
 

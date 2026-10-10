@@ -62,3 +62,4 @@ instead: its Bluetooth stack crashes, so only the *Bluetooth is off* state
 was checked; its battery is a fixed fake that never discharges, so drain
 alerts and the battery-level auto-stop did not run; and it has one access
 point. Auto-stop at a time of day was not waited for. Check these on a phone.
+[phone-testing-handoff.md](./phone-testing-handoff.md) is the brief for that.
