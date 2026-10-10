@@ -73,6 +73,11 @@ void main() {
 
       now = now.add(const Duration(seconds: 30));
       await r.runOnce();
+      expect(
+        platform.widgetValues.last['battery'],
+        '80%',
+        reason: 'battery keeps its last reading between its samples',
+      );
       final history = await HistoryStore(
         Directory('${root.path}/support/history'),
       ).read(since: DateTime(2026, 10, 10), until: now);

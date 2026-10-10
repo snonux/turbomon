@@ -41,6 +41,9 @@ class BackgroundRunner {
 
   final _lastRun = <Monitor, DateTime>{};
   final fired = <FiredAlert>[];
+
+  /// The widget and overlay values last shown, by field.
+  final _shown = <String, String>{};
   Timer? _timer;
   bool _busy = false;
   bool _stopping = false;
@@ -183,15 +186,20 @@ class BackgroundRunner {
         : '${formatDuration(end.difference(now))} left';
     await platform.serviceStatus('$names · $left');
 
-    String pct(double? v) => v == null ? '–' : '${v.round()}%';
+    String? pct(double? v) => v == null ? null : '${v.round()}%';
     final temps = [s.thermal?.hottest, s.battery?.temperatureC].nonNulls;
     final temp = temps.isEmpty ? null : temps.reduce((a, b) => a > b ? a : b);
-    final values = {
+    // Monitors not due this tick keep their last reading instead of blanking.
+    final fresh = {
       'cpu': pct(s.cpu?.load),
       'ram': pct(s.memory?.usedPercent),
       'battery': pct(s.battery?.percent),
-      'temp': temp == null ? '–' : '${temp.round()}°C',
+      'temp': temp == null ? null : '${temp.round()}°C',
     };
+    for (final e in fresh.entries) {
+      if (e.value != null) _shown[e.key] = e.value!;
+    }
+    final values = {for (final k in fresh.keys) k: _shown[k] ?? '–'};
     await platform.updateWidget(values);
     if (config.overlay) {
       await platform.overlay(
