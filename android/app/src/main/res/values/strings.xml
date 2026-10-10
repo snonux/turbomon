@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">TurboMon</string>
+    <string name="widget_description">CPU, RAM, battery and temperature at a glance</string>
+    <string name="tile_label">TurboMon scan</string>
+</resources>

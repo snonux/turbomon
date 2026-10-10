@@ -1,0 +1,1 @@
+System monitor: CPU, RAM, GPU, battery, Wi-Fi channels, Bluetooth, LLM snapshots

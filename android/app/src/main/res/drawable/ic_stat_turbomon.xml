@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Notification and tile icon: a gauge with its needle in the red zone. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M12,4C6.48,4 2,8.48 2,14c0,2.2 0.71,4.23 1.91,5.88L5.5,18.7C4.56,17.38 4,15.76 4,14c0,-4.42 3.58,-8 8,-8s8,3.58 8,8c0,1.76 -0.56,3.38 -1.5,4.7l1.59,1.18C21.29,18.23 22,16.2 22,14C22,8.48 17.52,4 12,4z" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M17.66,8.93l-5.13,4.3c-0.5,-0.2 -1.09,-0.11 -1.5,0.3c-0.59,0.59 -0.59,1.54 0,2.12s1.54,0.59 2.12,0c0.41,-0.41 0.5,-1 0.3,-1.5z" />
+</vector>
