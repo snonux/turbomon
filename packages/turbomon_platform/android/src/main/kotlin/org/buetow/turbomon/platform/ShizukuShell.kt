@@ -105,6 +105,8 @@ class ShizukuShell(private val context: Context) {
 
     private companion object {
         const val REQUEST_CODE = 4711
-        const val BIND_TIMEOUT_S = 30L
+        // Short on purpose: a sample must not stall while Shizuku is still
+        // starting the shell; the bind stays pending and a later call uses it.
+        const val BIND_TIMEOUT_S = 3L
     }
 }
