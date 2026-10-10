@@ -125,9 +125,10 @@ class PowerScreen extends StatelessWidget {
         children: [
           if (headroom != null)
             UsageBar(
-              label: 'Head',
+              // Android's thermal headroom: 1.0 is where throttling starts.
+              label: 'Heat',
               percent: headroom * 100,
-              trailing: '${(headroom * 100).round()} % to throttling',
+              trailing: '${(headroom * 100).round()} % of throttle point',
             ),
           for (final z in zones.take(12)) _ZoneRow(z),
           if (zones.length <= 1 && !services.access.privileged)

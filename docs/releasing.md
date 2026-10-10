@@ -26,34 +26,57 @@ uploads `app-armeabi-v7a-release.apk`, `app-arm64-v8a-release.apk` and
 
 ## One-time setup
 
-1. **Workflow.** Copy `ci/workflows/release.yml` to
-   `.github/workflows/release.yml` (it is staged under `ci/` because the
-   agent that wrote it cannot push workflow files).
-2. **Signing key.** Create `keys/turbomon-release.jks` and keep an offline
-   backup: losing it means existing installs can never be updated. `keys/`,
-   `*.jks` and `android/key.properties` are git-ignored.
+These follow snonux/fdroid's
+[onboarding guide](https://github.com/snonux/fdroid/blob/main/docs/onboarding-flutter-app.md);
+steps 1 to 3 are Paul's, because agents cannot write workflow files or
+handle keys. In fish, from the repo root:
+
+1. **Signing key**, kept outside the repo, with a backup in
+   `~/.foostore-export/`. Losing it means existing installs can never be
+   updated.
 
    ```fish
-   mkdir -p keys
-   keytool -genkeypair -v -keystore keys/turbomon-release.jks -alias turbomon \
-       -keyalg RSA -keysize 4096 -validity 10000
+   mkdir -p ~/.config/turbomon
+   set pw (openssl rand -hex 16)
+   keytool -genkeypair -noprompt -keystore ~/.config/turbomon/release.jks -storetype PKCS12 \
+     -alias turbomon -keyalg RSA -keysize 4096 -validity 36500 \
+     -dname "CN=TurboMon" -storepass $pw -keypass $pw
+   printf 'storeFile=%s\nstorePassword=%s\nkeyAlias=turbomon\nkeyPassword=%s\n' \
+     ~/.config/turbomon/release.jks $pw $pw > android/key.properties
+   chmod 600 ~/.config/turbomon/release.jks android/key.properties
    ```
 
-3. **Secrets** on the GitHub repo: `ANDROID_KEYSTORE` (the `.jks`, base64),
-   `ANDROID_KEY_ALIAS`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_PASSWORD`,
-   and optionally `FDROID_DISPATCH_TOKEN` so snonux/fdroid refreshes at once
-   instead of within six hours.
+2. **Workflow.** Move the staged workflow into place:
 
    ```fish
-   base64 -w0 keys/turbomon-release.jks | gh secret set ANDROID_KEYSTORE -R snonux/turbomon
-   gh secret set ANDROID_KEY_ALIAS -R snonux/turbomon --body turbomon
-   gh secret set ANDROID_KEYSTORE_PASSWORD -R snonux/turbomon
-   gh secret set ANDROID_KEY_PASSWORD -R snonux/turbomon
+   git checkout main; and git pull
+   mkdir -p .github/workflows; and git mv ci/workflows/release.yml .github/workflows/
+   git commit -m "Enable release workflow"; and git push
    ```
 
-4. **Register the app** in snonux/fdroid: an entry in `apps.yml`, the metadata
-   file `fdroid/metadata/org.buetow.turbomon.yml`, and a line in its README
-   and `docs/releasing-apps.md`.
+3. **Secrets** for the workflow; `FDROID_DISPATCH_TOKEN` (optional) makes
+   snonux/fdroid refresh at once instead of within six hours.
+
+   ```fish
+   function get; sed -n "s/^$argv[1]=//p" android/key.properties; end
+   base64 -w0 (get storeFile) | gh secret set ANDROID_KEYSTORE
+   gh secret set ANDROID_KEY_ALIAS --body (get keyAlias)
+   gh secret set ANDROID_KEYSTORE_PASSWORD --body (get storePassword)
+   gh secret set ANDROID_KEY_PASSWORD --body (get keyPassword)
+   gh secret list
+   ```
+
+4. **Register the app** in snonux/fdroid: `apps.yml`, the metadata file
+   `fdroid/metadata/org.buetow.turbomon.yml`, the README's app list and the
+   tables in its `docs/releasing-apps.md` and `docs/release-check.md`.
+
+Then release by starting the workflow (an agent can do this too; it creates
+the tag):
+
+```fish
+gh workflow run release.yml -R snonux/turbomon --ref main -f tag=v0.1.0
+gh run watch -R snonux/turbomon
+```
 
 ## Store text
 
