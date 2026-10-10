@@ -99,7 +99,7 @@ class IoScreen extends StatelessWidget {
           if (volumes.isEmpty) const LinearProgressIndicator(),
           for (final v in volumes) ...[
             UsageBar(
-              label: v.removable ? 'SD' : 'Int',
+              label: v.removable ? 'SD' : 'Phone',
               percent: v.usedPercent,
               trailing: '${formatBytes(v.freeBytes, decimals: 0)} free',
             ),

@@ -91,12 +91,12 @@ class SystemReader {
     if (access.runner == null) return const [];
     const top = 'top -b -n 1 -q -o PID,USER,S,%CPU,RES,ARGS -s 4';
     try {
-      // One extra row, since the probe itself is dropped below.
-      final out = await access.run('$top -m ${limit + 1}');
+      // Extra rows, since TurboMon's own probes are dropped below.
+      final out = await access.run('$top -m ${limit + 2}');
+      bool own(ProcessInfo p) =>
+          p.name.startsWith(top) || p.name.contains(_marker);
       // toybox top ignores -m with -q on some builds; cap the list here.
-      return parseTop(
-        out,
-      ).where((p) => !p.name.startsWith(top)).take(limit).toList();
+      return parseTop(out).where((p) => !own(p)).take(limit).toList();
     } on Object {
       return const [];
     }

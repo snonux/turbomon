@@ -265,10 +265,16 @@ class _SystemScreenState extends State<SystemScreen> {
                   TableRow(
                     children: [
                       Text('${p.pid}', style: mono),
-                      Text(
-                        p.name,
-                        style: mono,
-                        overflow: TextOverflow.ellipsis,
+                      Padding(
+                        // Keeps a gutter when a long name fills the column.
+                        padding: const EdgeInsets.only(right: 6),
+                        child: Text(
+                          p.name,
+                          style: mono,
+                          maxLines: 1,
+                          softWrap: false,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
                       Text(
                         p.cpuPercent.toStringAsFixed(1),

@@ -99,7 +99,10 @@ class ShizukuShell(private val context: Context) {
 
     fun dispose() {
         Shizuku.removeBinderDeadListener(binderDead)
-        if (service != null) runCatching { Shizuku.unbindUserService(args, connection, true) }
+        // remove = false: the app and the background engine share one shell
+        // service, so one engine closing must not kill it for the other. It is
+        // not a daemon, so it still ends with TurboMon's process.
+        if (service != null) runCatching { Shizuku.unbindUserService(args, connection, false) }
         reset()
     }
 
