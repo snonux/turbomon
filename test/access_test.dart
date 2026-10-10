@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:turbomon/services/access.dart';
 
@@ -36,5 +37,26 @@ void main() {
     await access.resolve(AccessMode.normal);
     expect(access.level, AccessLevel.normal);
     expect(access.runner, isNull);
+  });
+
+  test('tracks shell failures until the shell answers', () async {
+    var fail = true;
+    final platform = FakePlatform()
+      ..shizuku = const {'running': true, 'granted': true}
+      ..shell = (script) {
+        if (fail) {
+          throw PlatformException(code: 'error', message: 'still starting');
+        }
+        return 'ok';
+      };
+    final access = AccessController(platform);
+    await access.resolve(AccessMode.shizuku);
+
+    await expectLater(access.run('true'), throwsA(isA<PlatformException>()));
+    expect(access.shellError, 'still starting');
+
+    fail = false;
+    expect(await access.run('true'), 'ok');
+    expect(access.shellError, isNull);
   });
 }

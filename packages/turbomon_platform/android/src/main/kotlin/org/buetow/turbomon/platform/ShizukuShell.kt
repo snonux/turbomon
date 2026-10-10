@@ -15,7 +15,11 @@ import java.util.concurrent.TimeUnit
  */
 class ShizukuShell(private val context: Context) {
     @Volatile private var service: IShellService? = null
-    private var connected = CountDownLatch(1)
+    @Volatile private var connected = CountDownLatch(1)
+
+    // Guards against binding again on every call while Shizuku is still
+    // starting the shell process, which can take many seconds on slow phones.
+    private var bindRequested = false
 
     private val connection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName, binder: IBinder?) {
@@ -25,10 +29,30 @@ class ShizukuShell(private val context: Context) {
             }
         }
 
-        override fun onServiceDisconnected(name: ComponentName) {
-            service = null
-            connected = CountDownLatch(1)
+        override fun onServiceDisconnected(name: ComponentName) = reset()
+    }
+
+    // Shizuku restarted or stopped: the old shell binder is gone with it.
+    private val binderDead = Shizuku.OnBinderDeadListener { reset() }
+
+    init {
+        Shizuku.addBinderDeadListener(binderDead)
+    }
+
+    @Synchronized
+    private fun reset() {
+        service = null
+        bindRequested = false
+        connected = CountDownLatch(1)
+    }
+
+    @Synchronized
+    private fun bindOnce(): CountDownLatch {
+        if (!bindRequested) {
+            Shizuku.bindUserService(args, connection)
+            bindRequested = true
         }
+        return connected
     }
 
     private val args = Shizuku.UserServiceArgs(ComponentName(context.packageName, ShellService::class.java.name))
@@ -67,20 +91,20 @@ class ShizukuShell(private val context: Context) {
         check(Shizuku.pingBinder()) { "Shizuku is not running" }
         check(Shizuku.checkSelfPermission() == PackageManager.PERMISSION_GRANTED) { "Shizuku permission not granted" }
         val shell = service ?: run {
-            Shizuku.bindUserService(args, connection)
-            check(connected.await(BIND_TIMEOUT_S, TimeUnit.SECONDS)) { "Shizuku shell did not start" }
+            check(bindOnce().await(BIND_TIMEOUT_S, TimeUnit.SECONDS)) { "Shizuku shell is still starting" }
             service ?: error("Shizuku shell disconnected")
         }
         return shell.exec(script)
     }
 
     fun dispose() {
+        Shizuku.removeBinderDeadListener(binderDead)
         if (service != null) runCatching { Shizuku.unbindUserService(args, connection, true) }
-        service = null
+        reset()
     }
 
     private companion object {
         const val REQUEST_CODE = 4711
-        const val BIND_TIMEOUT_S = 10L
+        const val BIND_TIMEOUT_S = 30L
     }
 }

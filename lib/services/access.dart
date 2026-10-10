@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:turbomon_platform/turbomon_platform.dart';
 
 /// What TurboMon can read on this device right now.
@@ -92,6 +93,31 @@ class AccessController extends ChangeNotifier {
   ShellRunner? get runner => _runner;
   ShizukuStatus get shizuku => _shizuku;
 
+  /// The last failure of the privileged shell, cleared by the next success,
+  /// so the UI can say why privileged data is missing.
+  String? get shellError => _shellError;
+  String? _shellError;
+
+  /// Runs [script] through the current runner and tracks whether it works.
+  Future<String> run(String script) async {
+    final runner = _runner;
+    if (runner == null) throw StateError('No privileged access');
+    try {
+      final out = await runner.run(script);
+      _setShellError(null);
+      return out;
+    } on Object catch (e) {
+      _setShellError(e is PlatformException ? (e.message ?? e.code) : '$e');
+      rethrow;
+    }
+  }
+
+  void _setShellError(String? error) {
+    if (error == _shellError) return;
+    _shellError = error;
+    notifyListeners();
+  }
+
   /// Why the requested mode fell back to normal, for the Settings screen.
   String? get problem => _problem;
 
@@ -132,6 +158,7 @@ class AccessController extends ChangeNotifier {
     }
     _level = level;
     _problem = problem;
+    _shellError = null;
     _runner = switch (level) {
       AccessLevel.normal => null,
       AccessLevel.shizuku => ShizukuRunner(platform),

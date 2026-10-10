@@ -88,10 +88,9 @@ class SystemReader {
   /// The top-style process list; empty without Shizuku or root, since
   /// Android hides other apps' /proc entries from normal apps.
   Future<List<ProcessInfo>> processes({int limit = 40}) async {
-    final runner = access.runner;
-    if (runner == null) return const [];
+    if (access.runner == null) return const [];
     try {
-      final out = await runner.run(
+      final out = await access.run(
         'top -b -n 1 -q -o PID,USER,S,%CPU,RES,ARGS -s 4 -m $limit',
       );
       // toybox top ignores -m with -q on some builds; cap the list here.
@@ -104,8 +103,7 @@ class SystemReader {
   /// Raw `dumpsys` output for snapshots, keyed by service; empty when
   /// unprivileged.
   Future<Map<String, String>> diagnostics() async {
-    final runner = access.runner;
-    if (runner == null) return const {};
+    if (access.runner == null) return const {};
     const commands = {
       'batterystats': 'dumpsys batterystats --charged | head -c 60000',
       'cpuinfo': 'dumpsys cpuinfo | head -c 20000',
@@ -115,7 +113,7 @@ class SystemReader {
         .map((e) => 'echo "$_marker ${e.key}"; ${e.value}')
         .join('\n');
     try {
-      return splitSections(await runner.run(script), _marker);
+      return splitSections(await access.run(script), _marker);
     } on Object {
       return const {};
     }
@@ -123,11 +121,10 @@ class SystemReader {
 
   /// Estimated mAh per uid from batterystats, for the process table.
   Future<Map<int, double>> batteryByUid() async {
-    final runner = access.runner;
-    if (runner == null) return const {};
+    if (access.runner == null) return const {};
     try {
       return parseBatteryStatsPower(
-        await runner.run(
+        await access.run(
           // Only the "Estimated power use" section has `UID x: mAh` lines.
           "dumpsys batterystats --charged | grep -E '^ +UID [0-9a-z]+: [0-9.]+'",
         ),
@@ -143,8 +140,7 @@ class SystemReader {
     required bool thermal,
     required bool gpu,
   }) async {
-    final runner = access.runner;
-    if (runner == null) return const {};
+    if (access.runner == null) return const {};
     final parts = <String>[
       if (stat) 'echo "$_marker stat"; cat /proc/stat',
       if (disk) 'echo "$_marker disk"; cat /proc/diskstats',
@@ -159,7 +155,7 @@ class SystemReader {
     ];
     if (parts.isEmpty) return const {};
     try {
-      return splitSections(await runner.run(parts.join('\n')), _marker);
+      return splitSections(await access.run(parts.join('\n')), _marker);
     } on Object {
       return const {};
     }

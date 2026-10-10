@@ -63,9 +63,12 @@ class _SystemScreenState extends State<SystemScreen> {
           if (cpu == null)
             const LinearProgressIndicator()
           else if (loads.every((l) => l == null))
-            const Hint(
-              'This device hides CPU load and clock speeds from apps. '
-              'Shizuku or root unlocks real CPU % (Settings, Access level).',
+            Hint(
+              widget.services.access.privileged
+                  ? _shellWaiting()
+                  : 'This device hides CPU load and clock speeds from apps. '
+                        'Shizuku or root unlocks real CPU % (Settings, Access '
+                        'level).',
             )
           else
             for (var i = 0; i < loads.length; i++)
@@ -192,6 +195,14 @@ class _SystemScreenState extends State<SystemScreen> {
     );
   }
 
+  /// Shown while the privileged shell has not answered yet.
+  String _shellWaiting() {
+    final access = widget.services.access;
+    final error = access.shellError;
+    return 'Waiting for the ${access.level.label} shell'
+        '${error == null ? '' : ' ($error)'}. TurboMon keeps trying.';
+  }
+
   Widget _graphLabel(String label, String value) => Padding(
     padding: const EdgeInsets.only(bottom: 4),
     child: Row(
@@ -224,7 +235,9 @@ class _SystemScreenState extends State<SystemScreen> {
               'top-style list.',
             )
           : hub.processes.isEmpty
-          ? const LinearProgressIndicator()
+          ? services.access.shellError == null
+                ? const LinearProgressIndicator()
+                : Hint(_shellWaiting())
           : Table(
               columnWidths: {
                 0: const FixedColumnWidth(52),
