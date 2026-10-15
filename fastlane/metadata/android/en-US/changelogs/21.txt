@@ -1,0 +1,4 @@
+* Full-screen live charts with pinch zoom, pan and reset.
+* Search, sort and filter all processes by PID, name, CPU, memory and more.
+* More reliable Android permission requests and help for restricted settings.
+* Shizuku setup guide, confirmed on GrapheneOS.
