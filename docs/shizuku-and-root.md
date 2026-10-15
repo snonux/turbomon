@@ -18,7 +18,7 @@ level in use, and *Check again* re-detects it.
 | Data | Normal app | Shizuku or root |
 |---|---|---|
 | CPU | Clock speed as a share of maximum | Real utilisation from `/proc/stat`, per core |
-| Process list | Hidden by Android | All processes, with CPU %, memory and state |
+| Process list | Hidden by Android | Processes across apps and the system, with CPU %, memory and state |
 | Per-app battery use | No | From `dumpsys batterystats` |
 | GPU busy | Some devices | Most devices |
 | Thermal zones | Thermal status and battery; zones on some devices | All zones |
@@ -40,15 +40,81 @@ over Shizuku's API; TurboMon asks for Shizuku's permission the first time you
 choose it. With root, your root manager asks once. If Shizuku stops, for
 example after a reboot, TurboMon falls back to normal mode.
 
-## Starting Shizuku with adb
+On an unrooted phone, ADB starts Shizuku as Android's `shell` user (UID
+2000). TurboMon keeps its ordinary app identity and talks to its privileged
+helper through Android's Binder IPC. The helper reads the system data and
+returns it to TurboMon to parse and display. Shell access remains subject
+to Android's restrictions; it does not grant root (UID 0). See
+[Shizuku's explanation](https://shizuku.rikka.app/introduction/).
 
-```fish
-adb shell sh /sdcard/Android/data/moe.shizuku.privileged.api/start.sh
-```
+## Set up Shizuku to see other processes
 
-Install Shizuku on the phone first. After starting its service, choose
-*Shizuku* in TurboMon's *Access level* settings and approve its permission
-request. *Check again* refreshes the detected access level.
+This USB setup was confirmed on a Pixel 7 Pro running GrapheneOS, Android
+17, with Shizuku 13.6 and TurboMon 0.1.0. TurboMon displayed real CPU
+utilisation and a process table containing `system_server`,
+`surfaceflinger` and other processes. Root was not needed.
+
+### 1. Install Shizuku
+
+Install it from one of the sources on the
+[official download page](https://shizuku.rikka.app/download/), such as its
+GitHub release. Open Shizuku on the phone after installation.
+
+### 2. Start its service using a computer
+
+1. Install [Android SDK Platform Tools](https://developer.android.com/tools/releases/platform-tools)
+   on the computer so the `adb` command is available.
+2. On the phone, enable *Developer options* (tap *Build number* seven times
+   under *About phone*), then enable *USB debugging* in Developer options.
+3. Connect the phone by USB, unlock it, and approve the debugging request
+   for your computer. Run `adb devices` on the computer: the phone should
+   be listed as `device`. If it says `unauthorized`, check the phone for the
+   approval dialog.
+4. In Shizuku, find *Start by connecting to a computer* and tap *View
+   command*. Copy that command and run it in a terminal on the computer.
+5. Check that Shizuku reports that it is running.
+
+Use the command shown by your installed Shizuku version. Shizuku 13.6
+starts an executable named `libshizuku.so` in its installed app directory;
+that directory can change after an update. Older instructions use
+`adb shell sh /sdcard/Android/data/moe.shizuku.privileged.api/start.sh`,
+which can fail with *No such file or directory* on newer releases.
+
+The USB method above was tested on the phone. For starting without a
+computer on Android 11+, see Shizuku's
+[wireless debugging guide](https://shizuku.rikka.app/guide/setup/#start-via-wireless-debugging).
+
+### 3. Authorise TurboMon
+
+1. Open TurboMon, then *Settings → Access level → Shizuku*.
+2. Approve TurboMon's Shizuku request. In the tested version, choose
+   *Allow all the time*. This authorises TurboMon to use the running
+   service; it does not keep the service running through a reboot.
+3. Return to *System*. The access chip should say `shizuku`, the live CPU
+   graph should say *CPU* instead of *CPU clock*, and *Processes* should
+   show *via Shizuku (ADB shell)* with names, CPU % and memory usage.
+
+If the chip stays `normal`, check that Shizuku is running and TurboMon is
+allowed in Shizuku's authorised apps, then tap *Check again* in TurboMon's
+access settings. *Automatic* can also use Shizuku once it is running and
+TurboMon is authorised.
+
+### GrapheneOS
+
+The tested phone worked with its existing GrapheneOS security settings,
+including successfully starting TurboMon's shell helper. No exploit
+protection settings were changed. Other OS or Shizuku versions may differ;
+check the [official setup notes](https://shizuku.rikka.app/guide/setup/)
+and [GrapheneOS documentation](https://grapheneos.org/usage) if starting the
+service or connecting an authorised app fails.
+
+### After a reboot
+
+Start Shizuku again with the command currently shown by its app, or use its
+wireless debugging method. Recheck TurboMon's access level afterwards.
+Until the service is available, TurboMon continues with its normal-app
+readings. You can revoke TurboMon's approval from Shizuku's authorised-app
+list whenever you want to stop sharing shell access.
 
 ## Checking what is available
 

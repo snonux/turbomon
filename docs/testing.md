@@ -66,7 +66,7 @@ point. Auto-stop at a time of day was not waited for. Check these on a phone.
 
 ## Phone access investigation: 2026-10-15
 
-Pixel 7 Pro, Tensor GS201, Android 17 (API 37), `user` build; installed
+Pixel 7 Pro, Tensor GS201, GrapheneOS / Android 17 (API 37), `user` build; installed
 TurboMon v0.1.0, build 12 (target API 36). This was a read-only ADB
 investigation of access availability, with no APK replacement or device
 settings changes.
@@ -91,3 +91,22 @@ Source review confirmed that *Automatic* selects normal mode when Shizuku
 is unavailable, without probing root. Explicit *Root* checks for UID 0 and
 falls back with an explanation if the check fails. This source review does
 not replace checking those screens on the phone.
+
+### Follow-up: Shizuku installed and authorised
+
+Later in the same session, with the user's approval, installed the official
+Shizuku 13.6.0.r1086.2650830c release and started its native
+`libshizuku.so` executable through ADB. The server ran as UID 2000
+(`shell`). No GrapheneOS exploit protection settings were changed.
+
+The user selected Shizuku in TurboMon and approved *Allow all the time*.
+The installed F-Droid build then showed the `shizuku` access chip, a live
+*CPU* utilisation graph, and *Processes · via Shizuku (ADB shell)* with
+other processes including `system_server` and `surfaceflinger`. This
+confirms the app's privileged shell connection and process-list path on
+this phone. The [setup tutorial](./shizuku-and-root.md#set-up-shizuku-to-see-other-processes)
+records the successful steps.
+
+Root, Shizuku restart after a phone reboot, service-stop recovery, wireless
+debugging setup, and the remaining GPU/thermal/disk readings were not
+verified by this follow-up. TurboMon's newly built APK was not installed.
