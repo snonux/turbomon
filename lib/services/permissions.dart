@@ -9,6 +9,7 @@ class Permissions {
   int? _sdk;
 
   static const fineLocation = 'android.permission.ACCESS_FINE_LOCATION';
+  static const coarseLocation = 'android.permission.ACCESS_COARSE_LOCATION';
   static const nearbyWifi = 'android.permission.NEARBY_WIFI_DEVICES';
   static const bluetoothScan = 'android.permission.BLUETOOTH_SCAN';
   static const bluetoothConnect = 'android.permission.BLUETOOTH_CONNECT';
@@ -18,10 +19,17 @@ class Permissions {
       _sdk ??= (await platform.device())['sdk'] as int? ?? 0;
 
   /// Wi-Fi scan results still need fine location (and location turned on)
-  /// on every Android version; 13+ also asks for NEARBY_WIFI_DEVICES.
-  Future<List<String>> wifi() async => await sdk() >= 33
-      ? const [nearbyWifi, fineLocation]
-      : const [fineLocation];
+  /// on every Android version; 12+ must request coarse and fine together,
+  /// even when upgrading an existing approximate grant. 13+ also asks for
+  /// NEARBY_WIFI_DEVICES.
+  Future<List<String>> wifi() async {
+    final version = await sdk();
+    return [
+      if (version >= 33) nearbyWifi,
+      if (version >= 31) coarseLocation,
+      fineLocation,
+    ];
+  }
 
   Future<List<String>> bluetooth() async => await sdk() >= 31
       ? const [bluetoothScan, bluetoothConnect]
@@ -35,7 +43,10 @@ class Permissions {
     if (permissions.isEmpty) return true;
     final status = await platform.permissionStatus(permissions);
     if (permissions.every((p) => status[p] == true)) return true;
-    final result = await platform.requestPermissions(permissions);
-    return permissions.every((p) => result[p] == true);
+    await platform.requestPermissions(permissions);
+    // Android can report only the requested grants in its callback. Check
+    // the complete current state, including permissions granted earlier.
+    final updated = await platform.permissionStatus(permissions);
+    return permissions.every((p) => updated[p] == true);
   }
 }
