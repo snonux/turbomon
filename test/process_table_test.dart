@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:turbomon/models/readings.dart';
+import 'package:turbomon/services/process_list.dart';
 import 'package:turbomon/widgets/process_table.dart';
+import 'process_list_test.dart' as fixtures;
 
 List<ProcessInfo> sample(int count) => [
   for (var i = 0; i < count; i++)
@@ -117,6 +119,15 @@ void main() {
     await tester.pumpAndSettle();
     expect(firstPid(), '1074');
     expect(
+      tester
+          .widget<DropdownButton<ProcessSort>>(
+            find.byType(DropdownButton<ProcessSort>),
+          )
+          .value,
+      ProcessSort.rss,
+    );
+    expect(find.text('Descending'), findsOneWidget);
+    expect(
       find.descendant(
         of: find.byType(DataTable),
         matching: find.text('process.74'),
@@ -138,6 +149,113 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('process.2'), findsOneWidget);
     expect(find.text('3 of 3 processes'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('visible sort controls sort every field both ways on a phone', (
+    tester,
+  ) async {
+    final previousHitTestSetting = WidgetController.hitTestWarningShouldBeFatal;
+    WidgetController.hitTestWarningShouldBeFatal = true;
+    addTearDown(
+      () =>
+          WidgetController.hitTestWarningShouldBeFatal = previousHitTestSetting,
+    );
+    live.value = fixtures.rows;
+    await pump(tester, size: const Size(360, 720), scale: 1.6);
+    final expectedUp = {
+      ProcessSort.pid: [2, 10, 30],
+      ProcessSort.name: [10, 2, 30],
+      ProcessSort.user: [2, 10, 30],
+      ProcessSort.uid: [2, 10, 30],
+      ProcessSort.cpu: [2, 30, 10],
+      ProcessSort.rss: [2, 30, 10],
+      ProcessSort.state: [30, 10, 2],
+      ProcessSort.battery: [2, 10, 30],
+    };
+    final expectedDown = {
+      ProcessSort.pid: [30, 10, 2],
+      ProcessSort.name: [30, 2, 10],
+      ProcessSort.user: [30, 10, 2],
+      ProcessSort.uid: [10, 2, 30],
+      ProcessSort.cpu: [10, 2, 30],
+      ProcessSort.rss: [10, 30, 2],
+      ProcessSort.state: [2, 10, 30],
+      ProcessSort.battery: [10, 2, 30],
+    };
+    List<int> orderedPids() {
+      final table = tester.widget<PaginatedDataTable>(
+        find.byType(PaginatedDataTable),
+      );
+      return [
+        for (var i = 0; i < table.source.rowCount; i++)
+          int.parse((table.source.getRow(i)!.cells.first.child as Text).data!),
+      ];
+    }
+
+    for (final field in ProcessSort.values) {
+      final picker = find.byType(DropdownButton<ProcessSort>);
+      await tester.ensureVisible(picker);
+      await tester.tap(picker);
+      await tester.pumpAndSettle();
+      final label = switch (field) {
+        ProcessSort.rss => 'Memory (RSS)',
+        ProcessSort.battery => 'Battery (mAh)',
+        _ => field.label,
+      };
+      final option = find
+          .widgetWithText(DropdownMenuItem<ProcessSort>, label)
+          .last;
+      await tester.ensureVisible(option);
+      await tester.pumpAndSettle();
+      await tester.tap(find.descendant(of: option, matching: find.text(label)));
+      await tester.pumpAndSettle();
+      expect(tester.widget<DropdownButton<ProcessSort>>(picker).value, field);
+      if (find.text('Descending').evaluate().isNotEmpty) {
+        await tester.ensureVisible(find.text('Descending'));
+        await tester.tap(find.text('Descending'));
+        await tester.pumpAndSettle();
+      }
+      expect(
+        orderedPids(),
+        expectedUp[field],
+        reason: '${field.label} ascending',
+      );
+      await tester.ensureVisible(find.text('Ascending'));
+      await tester.tap(find.text('Ascending'));
+      await tester.pumpAndSettle();
+      expect(
+        orderedPids(),
+        expectedDown[field],
+        reason: '${field.label} descending',
+      );
+      expect(tester.takeException(), isNull, reason: field.label);
+    }
+    // A missing battery reading stays last, and the chosen sort survives updates.
+    live.value = [
+      ...fixtures.rows,
+      const ProcessInfo(
+        pid: 99,
+        user: 'shell',
+        name: 'New',
+        cpuPercent: 1,
+        rssBytes: 0,
+        state: 'S',
+        batteryMah: 10,
+      ),
+    ];
+    await tester.pumpAndSettle();
+    expect(orderedPids(), [99, 10, 2, 30]);
+    await enter(tester, 'Search processes', 'absent');
+    expect(find.text('No processes match these filters.'), findsOneWidget);
+    // Sort remains usable even when there are no matching table rows.
+    await tester.ensureVisible(find.text('Descending'));
+    await tester.tap(find.text('Descending'));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.byTooltip('Clear search'));
+    await tester.tap(find.byTooltip('Clear search'));
+    await tester.pumpAndSettle();
+    expect(orderedPids(), [2, 10, 99, 30]);
     expect(tester.takeException(), isNull);
   });
 

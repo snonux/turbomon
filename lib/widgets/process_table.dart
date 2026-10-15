@@ -75,6 +75,18 @@ class _ProcessTableState extends State<ProcessTable>
     });
   }
 
+  void _setSort(ProcessSort field, bool ascending) => setState(() {
+    _sort = field;
+    _ascending = ascending;
+    _refresh(resetPage: true);
+  });
+
+  String _sortLabel(ProcessSort field) => switch (field) {
+    ProcessSort.rss => 'Memory (RSS)',
+    ProcessSort.battery => 'Battery (mAh)',
+    _ => field.label,
+  };
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -103,6 +115,51 @@ class _ProcessTableState extends State<ProcessTable>
         const SizedBox(height: 8),
         Wrap(
           spacing: 8,
+          runSpacing: 8,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: [
+            SizedBox(
+              width: 220,
+              child: InputDecorator(
+                decoration: const InputDecoration(
+                  labelText: 'Sort by',
+                  border: OutlineInputBorder(),
+                  contentPadding: EdgeInsets.symmetric(horizontal: 12),
+                ),
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton<ProcessSort>(
+                    value: _sort,
+                    isExpanded: true,
+                    items: [
+                      for (final field in ProcessSort.values)
+                        DropdownMenuItem(
+                          value: field,
+                          child: Text(
+                            _sortLabel(field),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                    ],
+                    onChanged: (field) {
+                      if (field != null) _setSort(field, _ascending);
+                    },
+                  ),
+                ),
+              ),
+            ),
+            OutlinedButton.icon(
+              onPressed: () => _setSort(_sort, !_ascending),
+              icon: Icon(
+                _ascending ? Icons.arrow_upward : Icons.arrow_downward,
+              ),
+              label: Text(_ascending ? 'Ascending' : 'Descending'),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 8,
           crossAxisAlignment: WrapCrossAlignment.center,
           children: [
             OutlinedButton.icon(
@@ -124,7 +181,7 @@ class _ProcessTableState extends State<ProcessTable>
           ],
         ),
         Text(
-          'Tap a column to sort; swipe sideways for all columns. RSS is resident memory; mAh is estimated per UID.',
+          'Choose a sort field and order, or tap a column heading. Swipe sideways for all columns. RSS is resident memory; mAh is estimated per UID.',
           style: Theme.of(context).textTheme.bodySmall,
         ),
         if (_source.rowCount == 0)
@@ -163,11 +220,7 @@ class _ProcessTableState extends State<ProcessTable>
                     ProcessSort.rss,
                     ProcessSort.battery,
                   }.contains(field),
-                  onSort: (_, ascending) => setState(() {
-                    _sort = field;
-                    _ascending = ascending;
-                    _refresh(resetPage: true);
-                  }),
+                  onSort: (_, ascending) => _setSort(field, ascending),
                 ),
             ],
           ),
