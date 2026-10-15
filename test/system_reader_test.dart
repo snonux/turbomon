@@ -134,4 +134,30 @@ void main() {
     expect(await r.processes(), isEmpty);
     expect(await r.diagnostics(), isEmpty);
   });
+
+  test(
+    'foreground keeps all processes; explicit background limits still apply',
+    () async {
+      platform.shizuku = const {'running': true, 'granted': true};
+      final commands = <String>[];
+      platform.shell = (script) {
+        commands.add(script);
+        // Repeat a real capture to exceed the former 40-process cap.
+        return List.filled(6, fixture('top_quiet.txt')).join('\n');
+      };
+      final access = AccessController(platform);
+      await access.resolve(AccessMode.shizuku);
+      final r = reader(access);
+      final all = await r.processes();
+      expect(all, hasLength(96));
+      expect(all.any((p) => p.name.startsWith('top -b')), isFalse);
+      expect(commands.single, isNot(contains(' -m ')));
+      expect(await r.processes(limit: 10), hasLength(10));
+      expect(commands.last, endsWith('-m 12'));
+      final previousCalls = commands.length;
+      expect(await r.processes(limit: 0), isEmpty);
+      expect(await r.processes(limit: -1), isEmpty);
+      expect(commands, hasLength(previousCalls));
+    },
+  );
 }

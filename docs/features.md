@@ -34,6 +34,20 @@ The `top`-style view.
   Android hides other apps' processes from normal apps, so this needs
   Shizuku or root; without them the card says so.
 
+The process table samples all available processes, including idle ones.
+Search by name, PID, user, UID or state, and tap any column heading to sort
+in either direction. Swipe sideways to reach all columns; use the page
+controls to browse 10, 25, 50 or 100 rows at a time.
+
+*Filters* combines name/user/state text with inclusive minimum and maximum
+PID, UID, CPU %, RSS in MiB, and battery use in mAh. A blank bound means no
+limit. Missing UID or battery readings do not match an active numeric
+filter; missing values sort last in both directions. *Clear filters*
+removes the field filters; the search box has its own clear button. These
+choices stay in place as live samples arrive. CPU % can exceed 100 when a
+process uses several cores. Battery estimates belong to a UID and can be
+shared by several processes.
+
 ## Power
 
 - **Battery**: level, charging state and source, current in mA (sign and
