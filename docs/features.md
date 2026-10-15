@@ -9,6 +9,12 @@ Sampling stops when the app leaves the screen unless
 Bars and graph lines are coloured by load: green below 50 %, amber below
 80 %, red above.
 
+Every live graph has an expand button in its upper-right corner. It opens
+a full-screen view that keeps updating, including per-core graphs, Wi-Fi
+channel curves, channel bars and the waterfall. Pinch to zoom up to 8×,
+drag to pan, use *Reset zoom* to fit the chart again, and close it with the
+cross or Android's Back button. Multi-line charts retain a colour legend.
+
 ## System
 
 The `top`-style view.
@@ -27,6 +33,20 @@ The `top`-style view.
   plus each app's estimated battery use (mAh, from `dumpsys batterystats`).
   Android hides other apps' processes from normal apps, so this needs
   Shizuku or root; without them the card says so.
+
+The process table samples all available processes, including idle ones.
+Search by name, PID, user, UID or state, and tap any column heading to sort
+in either direction. Swipe sideways to reach all columns; use the page
+controls to browse 10, 25, 50 or 100 rows at a time.
+
+*Filters* combines name/user/state text with inclusive minimum and maximum
+PID, UID, CPU %, RSS in MiB, and battery use in mAh. A blank bound means no
+limit. Missing UID or battery readings do not match an active numeric
+filter; missing values sort last in both directions. *Clear filters*
+removes the field filters; the search box has its own clear button. These
+choices stay in place as live samples arrive. CPU % can exceed 100 when a
+process uses several cores. Battery estimates belong to a UID and can be
+shared by several processes.
 
 ## Power
 

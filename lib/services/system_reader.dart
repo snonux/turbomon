@@ -87,16 +87,21 @@ class SystemReader {
 
   /// The top-style process list; empty without Shizuku or root, since
   /// Android hides other apps' /proc entries from normal apps.
-  Future<List<ProcessInfo>> processes({int limit = 40}) async {
+  Future<List<ProcessInfo>> processes({int? limit}) async {
+    if (limit != null && limit <= 0) return const [];
     if (access.runner == null) return const [];
     const top = 'top -b -n 1 -q -o PID,USER,S,%CPU,RES,ARGS -s 4';
     try {
       // Extra rows, since TurboMon's own probes are dropped below.
-      final out = await access.run('$top -m ${limit + 2}');
+      final out = await access.run(
+        limit == null ? top : '$top -m ${limit + 2}',
+      );
       bool own(ProcessInfo p) =>
           p.name.startsWith(top) || p.name.contains(_marker);
-      // toybox top ignores -m with -q on some builds; cap the list here.
-      return parseTop(out).where((p) => !own(p)).take(limit).toList();
+      final rows = parseTop(out).where((p) => !own(p));
+      // Background sampling can request a small list. Foreground filtering
+      // needs the entire sample, including processes with little CPU use.
+      return (limit == null ? rows : rows.take(limit)).toList();
     } on Object {
       return const [];
     }

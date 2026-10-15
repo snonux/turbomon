@@ -6,6 +6,7 @@ import '../services/format.dart';
 import '../services/monitor_hub.dart';
 import '../theme.dart';
 import '../widgets/section_card.dart';
+import '../widgets/process_table.dart';
 import '../widgets/usage_bar.dart';
 import '../widgets/usage_graph.dart';
 
@@ -144,24 +145,27 @@ class _SystemScreenState extends State<SystemScreen> {
             onTap: () => setState(() => _splitCores = !_splitCores),
             child: _splitCores && hub.coreSeries.isNotEmpty
                 ? _coreGrid(hub)
-                : UsageGraph(
-                    lines: [GraphLine(hub.series[SeriesKey.cpu]!)],
+                : LiveUsageGraph(
+                    listenable: hub,
+                    linesBuilder: () => [GraphLine(hub.series[SeriesKey.cpu]!)],
                     maxValue: 100,
                     semanticLabel: '$cpuLabel graph',
                   ),
           ),
           const SizedBox(height: 10),
           _graphLabel('RAM', formatPercent(s?.memory?.usedPercent)),
-          UsageGraph(
-            lines: [GraphLine(hub.series[SeriesKey.ram]!)],
+          LiveUsageGraph(
+            listenable: hub,
+            linesBuilder: () => [GraphLine(hub.series[SeriesKey.ram]!)],
             maxValue: 100,
             semanticLabel: 'RAM graph',
           ),
           if (!hub.series[SeriesKey.gpu]!.isEmpty) ...[
             const SizedBox(height: 10),
             _graphLabel('GPU', formatPercent(s?.gpu?.busyPercent)),
-            UsageGraph(
-              lines: [GraphLine(hub.series[SeriesKey.gpu]!)],
+            LiveUsageGraph(
+              listenable: hub,
+              linesBuilder: () => [GraphLine(hub.series[SeriesKey.gpu]!)],
               maxValue: 100,
               semanticLabel: 'GPU graph',
             ),
@@ -183,10 +187,14 @@ class _SystemScreenState extends State<SystemScreen> {
         for (var i = 0; i < hub.coreSeries.length; i++)
           Stack(
             children: [
-              UsageGraph(
-                lines: [GraphLine(hub.coreSeries[i])],
+              LiveUsageGraph(
+                listenable: hub,
+                linesBuilder: () => [
+                  if (i < hub.coreSeries.length) GraphLine(hub.coreSeries[i]),
+                ],
                 maxValue: 100,
                 height: 48,
+                semanticLabel: 'cpu$i graph',
               ),
               Text('cpu$i', style: Theme.of(context).textTheme.labelSmall),
             ],
@@ -217,16 +225,11 @@ class _SystemScreenState extends State<SystemScreen> {
 
   Widget _processCard(MonitorHub hub) {
     final services = widget.services;
-    final theme = Theme.of(context);
-    final mono = theme.textTheme.bodySmall?.copyWith(
-      fontFeatures: const [FontFeature.tabularFigures()],
-    );
-    final withBattery = hub.processes.any((p) => p.batteryMah != null);
     return SectionCard(
       icon: Icons.list_alt,
       title: 'Processes',
       subtitle: services.access.privileged
-          ? 'Sorted by CPU · via ${services.access.level.label}'
+          ? 'Live processes · via ${services.access.level.label}'
           : null,
       child: !services.access.privileged
           ? const Hint(
@@ -234,61 +237,16 @@ class _SystemScreenState extends State<SystemScreen> {
               'Shizuku or root under Settings, Access level, to see the full '
               'top-style list.',
             )
-          : hub.processes.isEmpty
-          ? services.access.shellError == null
-                ? const LinearProgressIndicator()
-                : Hint(_shellWaiting())
-          : Table(
-              columnWidths: {
-                0: const FixedColumnWidth(52),
-                1: const FlexColumnWidth(),
-                2: const FixedColumnWidth(48),
-                3: const FixedColumnWidth(62),
-                4: const FixedColumnWidth(18),
-                if (withBattery) 5: const FixedColumnWidth(44),
-              },
+          : Column(
               children: [
-                TableRow(
-                  children: [
-                    for (final h in [
-                      'PID',
-                      'NAME',
-                      'CPU%',
-                      'RSS',
-                      'S',
-                      if (withBattery) 'mAh',
-                    ])
-                      Text(h, style: theme.textTheme.labelSmall),
-                  ],
+                if (hub.processes.isEmpty)
+                  services.access.shellError == null
+                      ? const LinearProgressIndicator()
+                      : Hint(_shellWaiting()),
+                ProcessTable(
+                  key: const ValueKey('process-table'),
+                  processes: hub.processes,
                 ),
-                for (final p in hub.processes.take(30))
-                  TableRow(
-                    children: [
-                      Text('${p.pid}', style: mono),
-                      Padding(
-                        // Keeps a gutter when a long name fills the column.
-                        padding: const EdgeInsets.only(right: 6),
-                        child: Text(
-                          p.name,
-                          style: mono,
-                          maxLines: 1,
-                          softWrap: false,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      Text(
-                        p.cpuPercent.toStringAsFixed(1),
-                        style: mono?.copyWith(color: loadColor(p.cpuPercent)),
-                      ),
-                      Text(formatBytes(p.rssBytes, decimals: 0), style: mono),
-                      Text(p.state, style: mono),
-                      if (withBattery)
-                        Text(
-                          p.batteryMah?.toStringAsFixed(0) ?? '',
-                          style: mono,
-                        ),
-                    ],
-                  ),
               ],
             ),
     );

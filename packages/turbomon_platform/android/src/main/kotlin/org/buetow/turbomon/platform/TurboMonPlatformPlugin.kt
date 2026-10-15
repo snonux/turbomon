@@ -175,7 +175,7 @@ class TurboMonPlatformPlugin :
         if (code != PERMISSION_REQUEST) return false
         val result = pendingPermissions ?: return true
         pendingPermissions = null
-        result.success(permissions.indices.associate { permissions[it] to (results[it] == PackageManager.PERMISSION_GRANTED) })
+        result.success(permissions.indices.associate { permissions[it] to (results.getOrNull(it) == PackageManager.PERMISSION_GRANTED) })
         return true
     }
 
@@ -210,7 +210,10 @@ class TurboMonPlatformPlugin :
             return
         }
         pendingPermissions = result
-        host.requestPermissions(missing.toTypedArray(), PERMISSION_REQUEST)
+        // Keep the full request: Android 12+ requires coarse and fine location
+        // together, including when coarse was granted on an earlier attempt.
+        // It also keeps earlier grants in the callback for mixed grant states.
+        host.requestPermissions(permissions.toTypedArray(), PERMISSION_REQUEST)
     }
 
     private fun shareFile(path: String, mime: String): Boolean {

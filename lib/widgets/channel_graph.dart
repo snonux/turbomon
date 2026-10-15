@@ -234,20 +234,30 @@ class _ChannelPainter extends CustomPainter {
 /// One bar per channel: height is the strongest signal on it, the label the
 /// number of networks; the suggested channel is outlined.
 class ChannelBars extends StatelessWidget {
-  const ChannelBars({super.key, required this.analysis});
+  const ChannelBars({
+    super.key,
+    required this.analysis,
+    this.height = 90,
+    this.scrollable = true,
+  });
 
   final BandAnalysis analysis;
+  final double height;
+  final bool scrollable;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final channels = analysis.channels;
     return SizedBox(
-      height: 90,
+      height: height,
       child: LayoutBuilder(
         builder: (context, box) {
-          final width = (box.maxWidth / channels.length).clamp(6.0, 40.0);
+          final width = scrollable
+              ? (box.maxWidth / channels.length).clamp(6.0, 40.0)
+              : box.maxWidth / channels.length;
           return SingleChildScrollView(
+            physics: scrollable ? null : const NeverScrollableScrollPhysics(),
             scrollDirection: Axis.horizontal,
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.end,
@@ -262,17 +272,23 @@ class ChannelBars extends StatelessWidget {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          if (c.count > 0 && width >= 12)
-                            Text(
-                              '${c.count}',
-                              style: theme.textTheme.labelSmall?.copyWith(
-                                fontSize: 9,
+                          if (c.count > 0 && (width >= 12 || !scrollable))
+                            SizedBox(
+                              height: 12,
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Text(
+                                  '${c.count}',
+                                  style: theme.textTheme.labelSmall?.copyWith(
+                                    fontSize: 9,
+                                  ),
+                                ),
                               ),
                             ),
                           Container(
                             height: c.strongest == null
                                 ? 2
-                                : 60 *
+                                : (height - 30).clamp(0, double.infinity) *
                                       ((c.strongest! - _floorDbm) /
                                               (_ceilingDbm - _floorDbm))
                                           .clamp(0.03, 1),
@@ -289,11 +305,17 @@ class ChannelBars extends StatelessWidget {
                                   : null,
                             ),
                           ),
-                          if (width >= 16)
-                            Text(
-                              '${c.channel}',
-                              style: theme.textTheme.labelSmall?.copyWith(
-                                fontSize: 9,
+                          if (width >= 16 || !scrollable)
+                            SizedBox(
+                              height: 12,
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Text(
+                                  '${c.channel}',
+                                  style: theme.textTheme.labelSmall?.copyWith(
+                                    fontSize: 9,
+                                  ),
+                                ),
                               ),
                             ),
                         ],
@@ -316,17 +338,19 @@ class ChannelWaterfall extends StatelessWidget {
     super.key,
     required this.band,
     required this.history,
+    this.height,
   });
 
   final WifiBand band;
   final ListQueue<Map<String, WifiNetwork>> history;
+  final double? height;
 
   @override
   Widget build(BuildContext context) {
     final channels = band.channels;
     final rows = history.toList().reversed.toList();
     return SizedBox(
-      height: 8.0 * rows.length.clamp(1, 30),
+      height: height ?? 8.0 * rows.length.clamp(1, 30),
       width: double.infinity,
       child: CustomPaint(
         painter: _WaterfallPainter(

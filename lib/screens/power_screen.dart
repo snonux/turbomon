@@ -82,11 +82,14 @@ class PowerScreen extends StatelessWidget {
             style: Theme.of(context).textTheme.labelLarge,
           ),
           const SizedBox(height: 4),
-          UsageGraph(
-            lines: [
+          LiveUsageGraph(
+            listenable: hub,
+            linesBuilder: () => [
               GraphLine(
                 hub.series[SeriesKey.batteryPower]!,
-                color: b.charging ? const Color(0xFF43A047) : turboOrange,
+                color: (hub.latest?.battery?.charging ?? false)
+                    ? const Color(0xFF43A047)
+                    : turboOrange,
               ),
             ],
             semanticLabel: 'Battery power graph',
@@ -94,8 +97,9 @@ class PowerScreen extends StatelessWidget {
           const SizedBox(height: 10),
           Text('Level (%)', style: Theme.of(context).textTheme.labelLarge),
           const SizedBox(height: 4),
-          UsageGraph(
-            lines: [
+          LiveUsageGraph(
+            listenable: hub,
+            linesBuilder: () => [
               GraphLine(
                 hub.series[SeriesKey.batteryPercent]!,
                 color: const Color(0xFF42A5F5),
@@ -142,8 +146,9 @@ class PowerScreen extends StatelessWidget {
             style: Theme.of(context).textTheme.labelLarge,
           ),
           const SizedBox(height: 4),
-          UsageGraph(
-            lines: [
+          LiveUsageGraph(
+            listenable: hub,
+            linesBuilder: () => [
               GraphLine(hub.series[SeriesKey.temperature]!, color: turboOrange),
             ],
             semanticLabel: 'Temperature graph',

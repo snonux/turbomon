@@ -93,7 +93,10 @@ class _AppUsageScreenState extends State<AppUsageScreen>
       children: [
         const Text(
           'Per-app figures need usage access. Android grants it in system '
-          'settings: find TurboMon in the list and switch it on.',
+          'settings: find TurboMon in the list and switch it on. If Android '
+          'shows "Restricted setting", open Settings → Apps → TurboMon → '
+          'More → Allow restricted settings, if offered, then try again. '
+          'Only allow this if you trust the installed app.',
         ),
         const SizedBox(height: 12),
         FilledButton(

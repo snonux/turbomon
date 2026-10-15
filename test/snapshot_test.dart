@@ -13,7 +13,7 @@ import 'package:turbomon/services/time_series.dart';
 
 /// A fixed input so the report is byte-for-byte stable.
 SnapshotInput fixedInput() {
-  final t0 = DateTime(2026, 10, 10, 12);
+  final t0 = DateTime.utc(2026, 10, 10, 12);
   final series = {for (final k in SeriesKey.values) k: TimeSeries(10)};
   for (var i = 0; i < 6; i++) {
     final t = t0.add(Duration(seconds: 2 * i));

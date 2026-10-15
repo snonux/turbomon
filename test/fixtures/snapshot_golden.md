@@ -28,10 +28,10 @@
 ```json
 {
   "schema": "turbomon.snapshot/1",
-  "generatedAt": "2026-10-10T12:00:10.000",
+  "generatedAt": "2026-10-10T12:00:10.000Z",
   "window": {
-    "start": "2026-10-10T12:00:00.000",
-    "end": "2026-10-10T12:00:10.000"
+    "start": "2026-10-10T12:00:00.000Z",
+    "end": "2026-10-10T12:00:10.000Z"
   },
   "device": {
     "manufacturer": "Google",
@@ -255,7 +255,7 @@
       "threshold": 60.0,
       "durationSeconds": 60,
       "value": 64.0,
-      "time": "2026-10-10T12:00:08.000",
+      "time": "2026-10-10T12:00:08.000Z",
       "culprit": "com.example.hog"
     }
   ],

@@ -187,10 +187,22 @@ class _BluetoothScreenState extends State<BluetoothScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          UsageGraph(
-            lines: [
-              for (final k in tracked)
-                GraphLine(_bt.signal[k]!, color: networkColor(k), fill: false),
+          LiveUsageGraph(
+            listenable: _bt,
+            linesBuilder: () => [
+              for (final k in _bt.tracked)
+                if (_bt.signal[k] != null)
+                  GraphLine(
+                    _bt.signal[k]!,
+                    color: networkColor(k),
+                    fill: false,
+                    label:
+                        _bt.devices
+                            .where((d) => d.groupKey == k)
+                            .firstOrNull
+                            ?.displayName ??
+                        k,
+                  ),
             ],
             minValue: -100,
             maxValue: -30,
