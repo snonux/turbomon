@@ -45,3 +45,31 @@ example after a reboot, TurboMon falls back to normal mode.
 ```fish
 adb shell sh /sdcard/Android/data/moe.shizuku.privileged.api/start.sh
 ```
+
+Install Shizuku on the phone first. After starting its service, choose
+*Shizuku* in TurboMon's *Access level* settings and approve its permission
+request. *Check again* refreshes the detected access level.
+
+## Checking what is available
+
+A USB debugging connection gives `adb shell` its own shell rights; it does
+not give those rights to TurboMon. A working `adb shell top` therefore does
+not mean the app can show the same processes. TurboMon needs a running,
+authorised Shizuku service or a root manager that grants its `su` request.
+Android's ordinary app permissions do not unlock the process list.
+
+These checks only read device state:
+
+```fish
+adb shell id
+adb shell 'command -v su'
+adb shell pm path moe.shizuku.privileged.api
+adb shell pidof shizuku_server
+```
+
+An empty `su` lookup means no `su` is exposed to the ADB shell; a root
+manager may expose it differently to apps. Selecting *Root* in TurboMon
+checks `su -c 'id -u'` from the app and may show the root manager's approval
+dialog. If that check fails, TurboMon uses normal mode and explains that
+`su` is missing or did not grant root. With Shizuku absent or stopped, choose
+normal mode or set up Shizuku before expecting privileged readings.
