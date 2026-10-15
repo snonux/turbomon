@@ -144,24 +144,27 @@ class _SystemScreenState extends State<SystemScreen> {
             onTap: () => setState(() => _splitCores = !_splitCores),
             child: _splitCores && hub.coreSeries.isNotEmpty
                 ? _coreGrid(hub)
-                : UsageGraph(
-                    lines: [GraphLine(hub.series[SeriesKey.cpu]!)],
+                : LiveUsageGraph(
+                    listenable: hub,
+                    linesBuilder: () => [GraphLine(hub.series[SeriesKey.cpu]!)],
                     maxValue: 100,
                     semanticLabel: '$cpuLabel graph',
                   ),
           ),
           const SizedBox(height: 10),
           _graphLabel('RAM', formatPercent(s?.memory?.usedPercent)),
-          UsageGraph(
-            lines: [GraphLine(hub.series[SeriesKey.ram]!)],
+          LiveUsageGraph(
+            listenable: hub,
+            linesBuilder: () => [GraphLine(hub.series[SeriesKey.ram]!)],
             maxValue: 100,
             semanticLabel: 'RAM graph',
           ),
           if (!hub.series[SeriesKey.gpu]!.isEmpty) ...[
             const SizedBox(height: 10),
             _graphLabel('GPU', formatPercent(s?.gpu?.busyPercent)),
-            UsageGraph(
-              lines: [GraphLine(hub.series[SeriesKey.gpu]!)],
+            LiveUsageGraph(
+              listenable: hub,
+              linesBuilder: () => [GraphLine(hub.series[SeriesKey.gpu]!)],
               maxValue: 100,
               semanticLabel: 'GPU graph',
             ),
@@ -183,10 +186,14 @@ class _SystemScreenState extends State<SystemScreen> {
         for (var i = 0; i < hub.coreSeries.length; i++)
           Stack(
             children: [
-              UsageGraph(
-                lines: [GraphLine(hub.coreSeries[i])],
+              LiveUsageGraph(
+                listenable: hub,
+                linesBuilder: () => [
+                  if (i < hub.coreSeries.length) GraphLine(hub.coreSeries[i]),
+                ],
                 maxValue: 100,
                 height: 48,
+                semanticLabel: 'cpu$i graph',
               ),
               Text('cpu$i', style: Theme.of(context).textTheme.labelSmall),
             ],

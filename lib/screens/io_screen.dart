@@ -58,11 +58,17 @@ class IoScreen extends StatelessWidget {
             _upColor,
           ),
           const SizedBox(height: 6),
-          UsageGraph(
-            lines: [
-              GraphLine(hub.series[SeriesKey.netRx]!, color: _downColor),
+          LiveUsageGraph(
+            listenable: hub,
+            linesBuilder: () => [
+              GraphLine(
+                hub.series[SeriesKey.netRx]!,
+                color: _downColor,
+                label: 'Download',
+              ),
               GraphLine(
                 hub.series[SeriesKey.netTx]!,
+                label: 'Upload',
                 color: _upColor,
                 fill: false,
               ),
@@ -144,11 +150,17 @@ class IoScreen extends StatelessWidget {
               '${io!.readOps!.toStringAsFixed(1)} / ${io.writeOps!.toStringAsFixed(1)}',
             ),
           const SizedBox(height: 6),
-          UsageGraph(
-            lines: [
-              GraphLine(hub.series[SeriesKey.diskRead]!, color: _downColor),
+          LiveUsageGraph(
+            listenable: hub,
+            linesBuilder: () => [
+              GraphLine(
+                hub.series[SeriesKey.diskRead]!,
+                color: _downColor,
+                label: 'Read',
+              ),
               GraphLine(
                 hub.series[SeriesKey.diskWrite]!,
+                label: 'Write',
                 color: _upColor,
                 fill: false,
               ),

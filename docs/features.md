@@ -9,6 +9,12 @@ Sampling stops when the app leaves the screen unless
 Bars and graph lines are coloured by load: green below 50 %, amber below
 80 %, red above.
 
+Every live graph has an expand button in its upper-right corner. It opens
+a full-screen view that keeps updating, including per-core graphs, Wi-Fi
+channel curves, channel bars and the waterfall. Pinch to zoom up to 8×,
+drag to pan, use *Reset zoom* to fit the chart again, and close it with the
+cross or Android's Back button. Multi-line charts retain a colour legend.
+
 ## System
 
 The `top`-style view.

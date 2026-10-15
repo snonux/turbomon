@@ -4,16 +4,67 @@ import 'package:flutter/material.dart';
 
 import '../services/time_series.dart';
 import '../theme.dart';
+import 'expandable_chart.dart';
 
 /// One line on a [UsageGraph].
 class GraphLine {
-  const GraphLine(this.series, {this.color, this.fill = true});
+  const GraphLine(this.series, {this.color, this.fill = true, this.label});
 
   final TimeSeries series;
 
   /// Fixed colour; when null the line is coloured by its current load.
   final Color? color;
   final bool fill;
+  final String? label;
+}
+
+/// A live usage graph that can also be explored in a full-screen viewer.
+/// Resolve lines on each notification, including when buffers are replaced.
+class LiveUsageGraph extends StatelessWidget {
+  const LiveUsageGraph({
+    super.key,
+    required this.listenable,
+    required this.linesBuilder,
+    required this.semanticLabel,
+    this.maxValue,
+    this.minValue = 0,
+    this.height = 72,
+  });
+
+  final Listenable listenable;
+  final List<GraphLine> Function() linesBuilder;
+  final String semanticLabel;
+  final double? maxValue;
+  final double minValue;
+  final double height;
+
+  @override
+  Widget build(BuildContext context) => ExpandableChart(
+    title: semanticLabel,
+    listenable: listenable,
+    height: height,
+    builder: (context, size, expanded) => UsageGraph(
+      lines: linesBuilder(),
+      maxValue: maxValue,
+      minValue: minValue,
+      height: size.height,
+      semanticLabel: semanticLabel,
+    ),
+    detailsBuilder: (context) => Wrap(
+      spacing: 16,
+      runSpacing: 4,
+      children: [
+        for (final line in linesBuilder())
+          if (line.label != null)
+            Text(
+              line.label!,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: line.color ?? loadColor(line.series.latest?.value),
+              ),
+            ),
+      ],
+    ),
+  );
 }
 
 /// A scrolling line graph drawn with a plain CustomPainter. The newest point
@@ -70,7 +121,15 @@ class _GraphPainter extends CustomPainter {
   })
     // Repaint whenever any series gains a point.
     : _signature = [
-         for (final l in lines) (l.series.length, l.series.latest?.time),
+         for (final l in lines)
+           (
+             l.series,
+             l.series.length,
+             l.series.latest?.time,
+             l.series.latest?.value,
+             l.color,
+             l.fill,
+           ),
        ];
 
   final List<GraphLine> lines;

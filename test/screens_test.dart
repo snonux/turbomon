@@ -13,7 +13,9 @@ import 'package:turbomon/services/permissions.dart';
 import 'package:turbomon/services/settings_store.dart';
 import 'package:turbomon/services/storage_paths.dart';
 import 'package:turbomon/services/system_reader.dart';
+import 'package:turbomon/services/time_series.dart';
 import 'package:turbomon/services/wifi_controller.dart';
+import 'package:turbomon/widgets/usage_graph.dart';
 
 import 'support/fake_files.dart';
 import 'support/fake_platform.dart';
@@ -97,6 +99,35 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.widgetWithText(AppBar, 'Background scanning'), findsOneWidget);
     await tester.scrollUntilVisible(find.text('Snapshot when it stops'), 300);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('CPU tap still splits cores and each graph expands separately', (
+    tester,
+  ) async {
+    services.hub.coreSeries.addAll([TimeSeries(5), TimeSeries(5)]);
+    await pumpApp(tester);
+    final cpu = find.byWidgetPredicate(
+      (widget) =>
+          widget is UsageGraph && widget.semanticLabel == 'CPU clock graph',
+    );
+    await tester.ensureVisible(cpu);
+    await tester.tapAt(tester.getTopLeft(cpu) + const Offset(30, 30));
+    await tester.pump();
+    expect(find.byTooltip('Expand cpu0 graph'), findsOneWidget);
+    expect(find.byTooltip('Expand cpu1 graph'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('Expand cpu0 graph'));
+    await tester.pumpAndSettle();
+    expect(find.widgetWithText(AppBar, 'cpu0 graph'), findsOneWidget);
+    expect(
+      tester.widget<UsageGraph>(find.byType(UsageGraph)).lines.single.series,
+      same(services.hub.coreSeries.first),
+    );
+    await tester.tap(find.byTooltip('Close chart'));
+    await tester.pumpAndSettle();
+    expect(find.byTooltip('Expand cpu0 graph'), findsOneWidget);
+    expect(cpu, findsNothing);
     expect(tester.takeException(), isNull);
   });
 

@@ -7,6 +7,7 @@ import '../services/wifi_analysis.dart';
 import '../services/wifi_controller.dart';
 import '../theme.dart';
 import '../widgets/channel_graph.dart';
+import '../widgets/expandable_chart.dart';
 import '../widgets/section_card.dart';
 import '../widgets/usage_graph.dart';
 
@@ -155,9 +156,13 @@ class _WifiScreenState extends State<WifiScreen> {
                   '${coChannelNeighbours(link, _wifi.networks)}',
                 ),
                 const SizedBox(height: 6),
-                UsageGraph(
-                  lines: [
-                    GraphLine(_wifi.linkSignal, color: signalColor(link.rssi)),
+                LiveUsageGraph(
+                  listenable: _wifi,
+                  linesBuilder: () => [
+                    GraphLine(
+                      _wifi.linkSignal,
+                      color: signalColor(_wifi.link?.rssi ?? -100),
+                    ),
                   ],
                   minValue: -100,
                   maxValue: -30,
@@ -220,6 +225,7 @@ class _WifiScreenState extends State<WifiScreen> {
       for (final b in WifiBand.values) b: analyseBand(b, _wifi.networks),
     };
     final a = analyses[_band]!;
+    final band = _band;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -240,16 +246,42 @@ class _WifiScreenState extends State<WifiScreen> {
               ? 'No networks on this band'
               : 'Least crowded: channel ${a.recommended}'
                     '${_band == WifiBand.ghz5 ? ' · DFS channels shaded' : ''}',
-          child: ChannelGraph(analysis: a),
+          child: ExpandableChart(
+            title: 'Channel graph · ${band.label}',
+            listenable: _wifi,
+            height: 220,
+            builder: (context, size, expanded) => ChannelGraph(
+              analysis: analyseBand(band, _wifi.networks),
+              height: size.height,
+            ),
+          ),
         ),
         SectionCard(
           title: 'Strongest signal and networks per channel',
-          child: ChannelBars(analysis: a),
+          child: ExpandableChart(
+            title: 'Channel signal and count · ${band.label}',
+            listenable: _wifi,
+            height: 90,
+            builder: (context, size, expanded) => ChannelBars(
+              analysis: analyseBand(band, _wifi.networks),
+              height: size.height,
+              scrollable: !expanded,
+            ),
+          ),
         ),
         SectionCard(
           title: 'Waterfall',
           subtitle: 'Last ${_wifi.history.length} scans, newest on top',
-          child: ChannelWaterfall(band: _band, history: _wifi.history),
+          child: ExpandableChart(
+            title: 'Waterfall · ${band.label}',
+            listenable: _wifi,
+            height: 8.0 * _wifi.history.length.clamp(6, 30),
+            builder: (context, size, expanded) => ChannelWaterfall(
+              band: band,
+              history: _wifi.history,
+              height: size.height,
+            ),
+          ),
         ),
       ],
     );
@@ -272,14 +304,22 @@ class _WifiScreenState extends State<WifiScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          UsageGraph(
-            lines: [
-              for (final b in tracked)
-                GraphLine(
-                  _wifi.signal[b]!,
-                  color: networkColor(b),
-                  fill: false,
-                ),
+          LiveUsageGraph(
+            listenable: _wifi,
+            linesBuilder: () => [
+              for (final b in _wifi.tracked)
+                if (_wifi.signal[b] != null)
+                  GraphLine(
+                    _wifi.signal[b]!,
+                    label:
+                        _wifi.networks
+                            .where((n) => n.bssid == b)
+                            .firstOrNull
+                            ?.displayName ??
+                        b,
+                    color: networkColor(b),
+                    fill: false,
+                  ),
             ],
             minValue: -100,
             maxValue: -30,
