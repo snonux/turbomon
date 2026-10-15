@@ -1,0 +1,3 @@
+* Added visible Sort by and Ascending/Descending controls above the process table.
+* Sort by PID, name, user, UID, CPU, memory, state or battery use without scrolling to a column heading.
+* Sorting stays in sync with column headings, filters and live updates.

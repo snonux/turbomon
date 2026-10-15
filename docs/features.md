@@ -35,9 +35,13 @@ The `top`-style view.
   Shizuku or root; without them the card says so.
 
 The process table samples all available processes, including idle ones.
-Search by name, PID, user, UID or state, and tap any column heading to sort
-in either direction. Swipe sideways to reach all columns; use the page
-controls to browse 10, 25, 50 or 100 rows at a time.
+Search by name, PID, user, UID or state. Use *Sort by* above the table to
+choose PID, name, user, UID, CPU %, memory (RSS), state or battery use (mAh),
+then use the *Ascending* / *Descending* button to change direction. Every
+sort field is available there without scrolling the table. Tapping a
+column heading also sorts and updates these controls. Swipe sideways to
+reach all columns; use the page controls to browse 10, 25, 50 or 100 rows
+at a time.
 
 *Filters* combines name/user/state text with inclusive minimum and maximum
 PID, UID, CPU %, RSS in MiB, and battery use in mAh. A blank bound means no
